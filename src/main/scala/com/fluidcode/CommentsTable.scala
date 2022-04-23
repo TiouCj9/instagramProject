@@ -5,6 +5,11 @@ import org.apache.spark.sql.functions.{col , explode}
 
 object CommentsTable {
 
+  //todo: running modes of spark
+  //todo : dataframe vs rdd vs dataset
+  //todo : narrow vs wide transformations
+  //todo : action vs transformation
+
   def getStructGraphImages(GraphImages: DataFrame): DataFrame = {
     GraphImages.select(
       explode(col("GraphImages")).as("GraphImages")
