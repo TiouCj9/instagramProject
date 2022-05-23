@@ -5,10 +5,9 @@ import org.apache.spark.sql.functions.{col , explode}
 
 object CommentsTable {
 
-  //todo: running modes of spark
-  //todo : dataframe vs rdd vs dataset
-  //todo : narrow vs wide transformations
-  //todo : action vs transformation
+
+  //todo : spark best practices
+  //todo : lazy evaluation/execution (DAG)
 
   def getStructGraphImages(GraphImages: DataFrame): DataFrame = {
     GraphImages.select(

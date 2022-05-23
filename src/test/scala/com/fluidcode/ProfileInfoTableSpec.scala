@@ -5,17 +5,9 @@ import org.apache.spark.sql.SparkSession
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import com.fluidcode.Models._
 
-
-case class Profile(created_time: Long, biography: String, info_followers_count: Long, info_following_count: Long, info_full_name: String,
-                   info_id: String, info_is_business_account: Boolean, info_is_joined_recently: Boolean, info_is_private: Boolean, info_posts_count: Long,
-                   profile_pic_url: String, username: String)
-case class RawData(created_time: Long, info: Data , username: String)
-case class Data (biography: String, followers_count: Long, following_count: Long, full_name: String, id: String, is_business_account: Boolean, is_joined_recently: Boolean,
-                 is_private: Boolean, posts_count: Long, profile_pic_url: String)
-case class GraphProfileInfoData (GraphProfileInfo: RawData)
-
-class ProfileInfoTable extends AnyFlatSpec with Matchers with GivenWhenThen {
+class ProfileInfoTableSpec extends AnyFlatSpec with Matchers with GivenWhenThen {
   "getProfileInfoTable" should "extract comments data from raw data" in {
     val spark: SparkSession = SparkSession
       .builder()

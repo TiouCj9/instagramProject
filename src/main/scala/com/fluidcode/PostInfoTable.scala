@@ -9,14 +9,15 @@ object PostInfoTable {
       explode(col("GraphImages")).as("GraphImages")
     )
   }
-  def getCommentsInfoData(RawData: DataFrame): DataFrame={
+  def getCommentsInfoData(RawData: DataFrame): DataFrame = {
     getStructGraphImages(RawData).select(  //select all struct columns
       col("GraphImages").getField("comments_disabled").alias("comments_disabled").cast("Boolean"),
       col("GraphImages").getField("dimensions").getField("height").alias("dimensions_height").cast("Long"),
       col("GraphImages").getField("dimensions").getField("width").alias("dimensions_width").cast("Long"),
       col("GraphImages").getField("display_url").alias("display_url").cast("String"),
       col("GraphImages").getField("edge_media_preview_like").getField("count").alias("edge_media_preview_like_count").cast("Long"),
-      col("GraphImages").getField("edge_media_to_comment").getField("count").alias("edge_media_to_comment_count").cast("Long"),
+      col("GraphImages").getField("edge_media_to_comment").getField("count").alias("edge" +
+        "_media_to_comment_count").cast("Long"),
       col("GraphImages").getField("gating_info").alias("gating_info").cast("String"),
       col("GraphImages").getField("id").alias("id").cast("String"),
       col("GraphImages").getField("is_video").alias("is_video").cast("Boolean"),
@@ -49,7 +50,7 @@ object PostInfoTable {
       col("shortcode"),
       col("taken_at_timestamp"),
       col("edges").getField("node").getField("text").alias("edge_media_to_caption_edges_node_text").cast("String"),
-      explode(col("GraphImages.tags")).as("tags")
+      explode(col("GraphImages.Tags")).as("Tags")
       // explode one of the remaining arrays
     )
   }
@@ -71,7 +72,8 @@ object PostInfoTable {
        col("shortcode"),
        col("taken_at_timestamp"),
        col("edge_media_to_caption_edges_node_text"),
-      col("tags").alias("tags").cast("String"),
+       col("Tags").alias("col_tag1").cast("String"),
+       col("Tags").alias("col_tag2").cast("String"),
       explode(col("GraphImages.thumbnail_resources")).as("thumbnail_resources")
     )
   }
@@ -116,12 +118,14 @@ object PostInfoTable {
       col("media_preview"),
       col("owner_id"),
       col("shortcode"),
-      col("tags"),
+      col("col_tag1"),
+      col("col_tag2"),
       col("taken_at_timestamp"),
       col("thumbnail_resources_config_height"),
       col("thumbnail_resources_config_width"),
       col("thumbnail_resources_src"),
-      col("urls").alias("urls").cast("String"),
+      col("urls").alias("col_url1").cast("String"),
+      col("urls").alias("col_url2").cast("String"),
       col("username")
     )
   }
