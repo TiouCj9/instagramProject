@@ -1,5 +1,5 @@
 package com.fluidcode
-
+object Models{
   //Case Class for Comments_Info
   case class Comments(
                        typename: String,
@@ -49,4 +49,4 @@ package com.fluidcode
   //case Classes for Date_Dimension
   // case class DateDim(day_of_month : DayOfMonth, day_of_week : DayOfWeek, year : Year, date_description : DateDescription, quarter : Quarter, isweekend: Boolean, isHoliday: Boolean)
 case class Calendar(startDate : Int, endDate : Int)
-
+}
