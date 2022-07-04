@@ -9,7 +9,7 @@ object CommentsTable {
   //todo : spark best practices
   //todo : lazy evaluation/execution (DAG)
   //TODO : fix table functions
-  //TODO : fix dateDimension
+  //TODO : fix dateDimension & tests
 
   def getStructGraphImages(GraphImages: DataFrame): DataFrame = {
     GraphImages.select(
