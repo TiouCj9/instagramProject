@@ -79,4 +79,16 @@ import java.time.format.DateTimeFormatter
       }
     }
 
+    def isHoliday(date: LocalDate) : Boolean = {
+
+      (date.getDayOfWeek.toString , date.getDayOfMonth+ "-" + date.getMonthValue.toString) match {
+        case (anyday , "1-1") if anyday == date.getDayOfWeek.toString => true
+        case (anyday, "5-5") if anyday == date.getDayOfWeek.toString => true
+        case (anyday, "8-7") if anyday == date.getDayOfWeek.toString => true
+        case (anyday, ascension) if anyday == date.getDayOfWeek.toString && ascension == isAscensionDay(date) => true
+        case (anyday, easter) if anyday == date.getDayOfWeek.toString && easter == matchingEasterMonday(date) => true
+        case (anyday, whit) if anyday == date.getDayOfWeek.toString && whit == isWhitMonday(date) => true
+        case _ => false
+      }
+    }
  }

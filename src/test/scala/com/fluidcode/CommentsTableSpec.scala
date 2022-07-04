@@ -5,7 +5,6 @@ import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import com.fluidcode.CommentsTable._
-import com.fluidcode.Models._
 
 class CommentsTableSpec extends AnyFlatSpec with Matchers with GivenWhenThen {
   "getCommentsTable" should "extract comments data from raw data" in {

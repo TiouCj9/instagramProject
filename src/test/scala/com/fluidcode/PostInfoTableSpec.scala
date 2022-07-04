@@ -4,7 +4,6 @@ import org.apache.spark.sql.SparkSession
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import com.fluidcode.Models._
 
   class PostInfoTableSpec extends AnyFlatSpec with Matchers with GivenWhenThen {
     "getPostInfoTable" should "extract comments data from raw data" in {
