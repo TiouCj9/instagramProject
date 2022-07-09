@@ -10,14 +10,13 @@ object PostInfoTable {
     )
   }
   def getCommentsInfoData(RawData: DataFrame): DataFrame = {
-    getStructGraphImages(RawData).select(  //select all struct columns
+    getStructGraphImages(RawData).select(
       col("GraphImages").getField("comments_disabled").alias("comments_disabled").cast("Boolean"),
       col("GraphImages").getField("dimensions").getField("height").alias("dimensions_height").cast("Long"),
       col("GraphImages").getField("dimensions").getField("width").alias("dimensions_width").cast("Long"),
       col("GraphImages").getField("display_url").alias("display_url").cast("String"),
       col("GraphImages").getField("edge_media_preview_like").getField("count").alias("edge_media_preview_like_count").cast("Long"),
-      col("GraphImages").getField("edge_media_to_comment").getField("count").alias("edge" +
-        "_media_to_comment_count").cast("Long"),
+      col("GraphImages").getField("edge_media_to_comment").getField("count").alias("edge_media_to_comment_count").cast("Long"),
       col("GraphImages").getField("gating_info").alias("gating_info").cast("String"),
       col("GraphImages").getField("id").alias("id").cast("String"),
       col("GraphImages").getField("is_video").alias("is_video").cast("Boolean"),
@@ -26,15 +25,18 @@ object PostInfoTable {
       col("GraphImages").getField("owner").getField("id").alias("owner_id").cast("String"),
       col("GraphImages").getField("shortcode").alias("shortcode").cast("String"),
       col("GraphImages").getField("taken_at_timestamp").alias("taken_at_timestamp").cast("Long"),
+      col("GraphImages").getField("thumbnail_src").alias("thumbnail_src").cast("String"),
       col("GraphImages").getField("username").alias("username").cast("String"),
-      explode(col("GraphImages.edge_media_to_caption.edges")).as("edges")
-      // select all array columns in raw state, without exploding
+      col("GraphImages").getField("edge_media_to_caption").getField("edges").alias("edge"),
+      col("GraphImages").getField("urls").alias("urls"),
+      col("GraphImages").getField("thumbnail_resources").alias("thumbnail_resources"),
+      explode(col("GraphImages.tags")).as("tags")
+
+
     )
   }
-
-
-  def getEdgeMediaCaptionData(Data: DataFrame): DataFrame = {
-    getCommentsInfoData(Data).select( //select all the above + select structs from exploded column (example : edges)
+  def getEdgeMediaCaptionData(Datas: DataFrame): DataFrame = {
+    getCommentsInfoData(Datas).select( //select all the above + select structs from exploded column (example : edges)
       col("comments_disabled"),
       col("dimensions_height"),
       col("dimensions_width"),
@@ -49,32 +51,36 @@ object PostInfoTable {
       col("owner_id"),
       col("shortcode"),
       col("taken_at_timestamp"),
-      col("edges").getField("node").getField("text").alias("edge_media_to_caption_edges_node_text").cast("String"),
-      explode(col("GraphImages.Tags")).as("Tags")
+      col("tags").cast("String"),
+      col("urls"),
+      col("username"),
+      col("thumbnail_resources"),
+      explode(col("edge")).as("edges")
+
       // explode one of the remaining arrays
     )
   }
-
   def getThumbnail(thumbn: DataFrame): DataFrame ={ //loop
-     getEdgeMediaCaptionData(thumbn).select(
-       col("comments_disabled"),
-       col("dimensions_height"),
-       col("dimensions_width"),
-       col("display_url"),
-       col("edge_media_preview_like_count"),
-       col("edge_media_to_comment_count"),
-       col("gating_info"),
-       col("id"),
-       col("is_video"),
-       col("location"),
-       col("media_preview"),
-       col("owner_id"),
-       col("shortcode"),
-       col("taken_at_timestamp"),
-       col("edge_media_to_caption_edges_node_text"),
-       col("Tags").alias("col_tag1").cast("String"),
-       col("Tags").alias("col_tag2").cast("String"),
-      explode(col("GraphImages.thumbnail_resources")).as("thumbnail_resources")
+    getEdgeMediaCaptionData(thumbn).select(
+      col("comments_disabled"),
+      col("dimensions_height"),
+      col("dimensions_width"),
+      col("display_url"),
+      col("edge_media_preview_like_count"),
+      col("edge_media_to_comment_count"),
+      col("gating_info"),
+      col("id"),
+      col("is_video"),
+      col("location"),
+      col("media_preview"),
+      col("owner_id"),
+      col("shortcode"),
+      col("tags"),
+      col("taken_at_timestamp"),
+      col("username"),
+      col("thumbnail_resources"),
+      col("edges").getField("node").getField("text").alias("edge_media_to_caption_edges_node_text").cast("String"),
+      explode(col("urls")).as("urls")
     )
   }
   def getUrlsData(Urls: DataFrame): DataFrame ={
@@ -95,10 +101,10 @@ object PostInfoTable {
       col("taken_at_timestamp"),
       col("edge_media_to_caption_edges_node_text"),
       col("tags"),
-      col("thumbnail_resources").getField("config_height").alias("thumbnail_resources_config_height").cast("Long"),
-      col("thumbnail_resources").getField("config_width").alias("thumbnail_resources_config_width").cast("Long"),
-      col("thumbnail_resources").getField("src").alias("thumbnail_resources_src").cast("String"),
-      explode(col("GraphImages.urls")).as("urls")
+      col("urls").cast("String"),
+      col("username"),
+      explode(col("thumbnail_resources")).as("thumbnail_resources")
+
     )
   }
 
@@ -118,14 +124,12 @@ object PostInfoTable {
       col("media_preview"),
       col("owner_id"),
       col("shortcode"),
-      col("col_tag1"),
-      col("col_tag2"),
+      col("tags"),
+      col("urls"),
       col("taken_at_timestamp"),
-      col("thumbnail_resources_config_height"),
-      col("thumbnail_resources_config_width"),
-      col("thumbnail_resources_src"),
-      col("urls").alias("col_url1").cast("String"),
-      col("urls").alias("col_url2").cast("String"),
+      col("thumbnail_resources").getField("config_height").alias("config_height").cast("Long"),
+      col("thumbnail_resources").getField("config_width").alias("config_width").cast("Long"),
+      col("thumbnail_resources").getField("src").alias("src").cast("String"),
       col("username")
     )
   }

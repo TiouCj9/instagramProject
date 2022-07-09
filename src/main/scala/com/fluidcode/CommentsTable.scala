@@ -24,7 +24,7 @@ object CommentsTable {
     )
   }
 
-  def getCommentsTable(input: DataFrame) : DataFrame = {
+  def getCommentsTablee(input: DataFrame) : DataFrame = {
     getCommentsData(input).select(
       col("typename"),
       col("data").getField("created_at").alias("created_at").cast("Long"),

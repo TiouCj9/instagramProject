@@ -5,7 +5,7 @@ import org.apache.spark.sql.functions.col
 
 object ProfileInfoTable {
 
-  def getProfileInfoTable(RawData: DataFrame): DataFrame ={
+  def getProfileInfoTable(RawData: DataFrame): DataFrame = {
     RawData.select(
       col("GraphProfileInfo").getField("created_time").as("created_time").cast("Long"),
       col("GraphProfileInfo").getField("info").getField("biography").as("biography").cast("String"),

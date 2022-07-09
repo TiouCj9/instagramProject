@@ -54,12 +54,33 @@ import java.time.format.DateTimeFormatter
     }
 
   def isAscensionDay(date : LocalDate): String = {
-    isEasterMonday(date).plusDays(39).getMonth + "-" + isEasterMonday(date).plusDays(39).getDayOfMonth
+    isEasterMonday(date).plusDays(38).getMonth + "-" + isEasterMonday(date).plusDays(38).getDayOfMonth
   }
 
   def isWhitMonday (date : LocalDate): String = {
     isEasterMonday(date).plusDays(49).getMonth + "-" + isEasterMonday(date).plusDays(49).getDayOfMonth
   }
+
+
+   def isHoliday(date: LocalDate) : Boolean = {
+
+      (date.getDayOfWeek.toString , date.getDayOfMonth+ "-" + date.getMonthValue.toString) match {
+        case (anyday , "1-1") if anyday == date.getDayOfWeek.toString => true
+        case (anyday, "14-2") if anyday == date.getDayOfWeek.toString => true
+        case (anyday, "1-5") if anyday == date.getDayOfWeek.toString => true
+        case (anyday, "8-5") if anyday == date.getDayOfWeek.toString => true
+        case (anyday, "14-7") if anyday == date.getDayOfWeek.toString => true
+        case (anyday, "15-8") if anyday == date.getDayOfWeek.toString => true
+        case (anyday, "1-11") if anyday == date.getDayOfWeek.toString => true
+        case (anyday, "11-11") if anyday == date.getDayOfWeek.toString => true
+        case (anyday, "25-12") if anyday == date.getDayOfWeek.toString => true
+        case (anyday, "26-12") if anyday == date.getDayOfWeek.toString => true
+        case (anyday, ascension) if anyday == date.getDayOfWeek.toString && ascension == isAscensionDay(date) => true
+        case (anyday, easter) if anyday == date.getDayOfWeek.toString && easter == matchingEasterMonday(date) => true
+        case (anyday, whit) if anyday == date.getDayOfWeek.toString && whit == isWhitMonday(date) => true
+        case _ => false
+      }
+    }
 
     def fixDateFormat(month: Int, day: Int, year: Int): LocalDate = {
       val dateFormat = "yyyy-MM-dd"
@@ -79,16 +100,4 @@ import java.time.format.DateTimeFormatter
       }
     }
 
-    def isHoliday(date: LocalDate) : Boolean = {
-
-      (date.getDayOfWeek.toString , date.getDayOfMonth+ "-" + date.getMonthValue.toString) match {
-        case (anyday , "1-1") if anyday == date.getDayOfWeek.toString => true
-        case (anyday, "5-5") if anyday == date.getDayOfWeek.toString => true
-        case (anyday, "8-7") if anyday == date.getDayOfWeek.toString => true
-        case (anyday, ascension) if anyday == date.getDayOfWeek.toString && ascension == isAscensionDay(date) => true
-        case (anyday, easter) if anyday == date.getDayOfWeek.toString && easter == matchingEasterMonday(date) => true
-        case (anyday, whit) if anyday == date.getDayOfWeek.toString && whit == isWhitMonday(date) => true
-        case _ => false
-      }
-    }
- }
+  }

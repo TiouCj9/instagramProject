@@ -1,7 +1,7 @@
 package com.fluidcode
 
   //Case Class for Comments_Info
-  case class Comments(
+  case class Commentse(
                        typename: String,
                        created_at: Long,
                        id: String,
@@ -28,24 +28,23 @@ package com.fluidcode
   case class PostInfoData(comments_disabled: Boolean, dimensions: Dimensions,
                           display_url: String, edge_media_preview_like: Edge_media_preview_like, edge_media_to_caption: Edge_media_to_caption,
                           edge_media_to_comment:Edge_media_to_comment, gating_info: String, id: String, is_video: Boolean, location: String,
-                          media_preview: String, owner:Owners, shortcode: String, tags: Tags, taken_at_timestamp: Long, thumbnail_resources:Thumbnail_Resources,
-                          thumbnail_src: String, urls:Urls, username: String)
+                          media_preview: String, owner:Owners, shortcode: String, tags: Array[text], taken_at_timestamp: Long, thumbnail_resources: Array[Thumbnail_resources],
+                          thumbnail_src: String, urls: Array[urls], username: String)
   case class Dimensions(height: Long, width: Long)
   case class Edge_media_preview_like(count: Long)
-  case class Edge_media_to_caption(edges: Array[edgesData])
-  case class edgesData(node: node)
-  case class node(text: String)
   case class Edge_media_to_comment(count: Long)
+  case class Thumbnail_resources(config_height: Long, config_width: Long, src: String)
+  case class Edge_media_to_caption(edges: Array[edges])
+  case class edges (node: Node)
+  case class Node (text: String)
   case class Owners(id: String)
-  case class Tags(tags: Array[String])
-  case class Urls(urls: Array[String])
-  case class Thumbnail_Resources(thumbnail_Resources: Array[Thumbnail_ResourcesData])
-  case class Thumbnail_ResourcesData(config_height: Long, config_width: Long, src:String)
+  case class text(text1: String)
+  case class urls(url:String)
   case class PostInfoS(comments_disabled: Boolean, dimensions_height: Long, dimensions_width: Long, display_url: String, edge_media_preview_like_count: Long,
                        edge_media_to_caption_edges_node_text:String, edge_media_to_comment_count: Long, gating_info: String, id: String, is_video: Boolean,
-                       location: String, media_preview: String,  owner_id: String, shortcode: String, col_tag1: String,col_tag2: String, taken_at_timestamp: Long, thumbnail_resources_config_height: Long,
-                       thumbnail_resources_config_width: Long, thumbnail_resources_config_src: String  ,thumbnail_src: String, col_url1: String, col_url2: String, username: String)
+                       location: String, media_preview: String,  owner_id: String, shortcode: String,tags: String, taken_at_timestamp: Long, thumbnail_resources_config_height: Long,
+                       thumbnail_resources_config_width: Long, thumbnail_resources_config_src: String  ,thumbnail_src: String, urls: String, username: String)
 
-case class DateDim(date : String, description : String, dayOfMonth: Int, dayOfWeek: String, month: String,  year: Int, quarter: String, isWeekend: Boolean, isHoliday: Boolean)
+  case class DateDim(date : String, description : String, dayOfMonth: Int, dayOfWeek: String, month: String,  year: Int, quarter: String, isWeekend: Boolean, isHoliday: Boolean)
 
 
