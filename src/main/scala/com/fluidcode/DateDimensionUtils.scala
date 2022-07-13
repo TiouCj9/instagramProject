@@ -50,15 +50,15 @@ import java.time.format.DateTimeFormatter
     fixDateFormat(nMonth,eastDay,year).plusDays(1)
   }
     def matchingEasterMonday(date: LocalDate): String = {
-      isEasterMonday(date).getMonth + "-" + isEasterMonday(date).getDayOfMonth
+      isEasterMonday(date).getDayOfMonth + "-" + isEasterMonday(date).getMonth
     }
 
   def isAscensionDay(date : LocalDate): String = {
-    isEasterMonday(date).plusDays(38).getMonth + "-" + isEasterMonday(date).plusDays(38).getDayOfMonth
+    isEasterMonday(date).plusDays(38).getDayOfMonth + "-" + isEasterMonday(date).plusDays(38).getMonth
   }
 
   def isWhitMonday (date : LocalDate): String = {
-    isEasterMonday(date).plusDays(49).getMonth + "-" + isEasterMonday(date).plusDays(49).getDayOfMonth
+    isEasterMonday(date).plusDays(49).getDayOfMonth + "-" + isEasterMonday(date).plusDays(49).getMonth
   }
 
 
@@ -75,8 +75,8 @@ import java.time.format.DateTimeFormatter
         case (anyday, "11-11") if anyday == date.getDayOfWeek.toString => true
         case (anyday, "25-12") if anyday == date.getDayOfWeek.toString => true
         case (anyday, "26-12") if anyday == date.getDayOfWeek.toString => true
-        case (anyday, ascension) if anyday == date.getDayOfWeek.toString && ascension == isAscensionDay(date) => true
         case (anyday, easter) if anyday == date.getDayOfWeek.toString && easter == matchingEasterMonday(date) => true
+        case (anyday, ascension) if anyday == date.getDayOfWeek.toString && ascension == isAscensionDay(date) => true
         case (anyday, whit) if anyday == date.getDayOfWeek.toString && whit == isWhitMonday(date) => true
         case _ => false
       }
