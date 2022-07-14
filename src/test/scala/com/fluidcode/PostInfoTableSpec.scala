@@ -36,8 +36,8 @@ import org.apache.spark.sql.functions.col
         media_preview = "null", owner_id = "1382894360", shortcode = "CLSFBFTAbYd", tags = Array("myqueen","oo"), taken_at_timestamp = 1613326858 , thumbnail_resources_config_height = 150, thumbnail_resources_config_width = 150, thumbnail_resources_config_src = "20",
         urls = Array("test","ll"),
         username = "phil.coutinho")).toDF()
-      val emptyConf: Seq[PostInfoS] = Seq()
-      expectedResult.join(PostInfoTable, PostInfoTable("comments_disabled") === expectedResult("comments_disabled") , "leftAnti").show()
-      //PostInfoTable.show()
+
+      expectedResult.collect() should  contain theSameElementsAs(PostInfoTable.collect())
+
     }
 }

@@ -12,17 +12,17 @@ object PostInfoTable {
   def getCommentsInfoData(RawData: DataFrame): DataFrame = {
     getStructGraphImages(RawData).select(
       col("GraphImages").getField("comments_disabled").alias("comments_disabled").cast("Boolean"),
-      col("GraphImages").getField("dimensions").getField("height").alias("dimensions_height").cast("Long"),
-      col("GraphImages").getField("dimensions").getField("width").alias("dimensions_width").cast("Long"),
+      col("GraphImages.dimensions.height").alias("dimensions_height").cast("Long"),
+      col("GraphImages.dimensions.width").alias("dimensions_width").cast("Long"),
       col("GraphImages").getField("display_url").alias("display_url").cast("String"),
-      col("GraphImages").getField("edge_media_preview_like").getField("count").alias("edge_media_preview_like_count").cast("Long"),
-      col("GraphImages").getField("edge_media_to_comment").getField("count").alias("edge_media_to_comment_count").cast("Long"),
+      col("GraphImages.edge_media_preview_like.count").alias("edge_media_preview_like_count").cast("Long"),
+      col("GraphImages.edge_media_to_comment.count").alias("edge_media_to_comment_count").cast("Long"),
       col("GraphImages").getField("gating_info").alias("gating_info").cast("String"),
       col("GraphImages").getField("id").alias("id").cast("String"),
       col("GraphImages").getField("is_video").alias("is_video").cast("Boolean"),
       col("GraphImages").getField("location").alias("location").cast("String"),
       col("GraphImages").getField("media_preview").alias("media_preview").cast("String"),
-      col("GraphImages").getField("owner").getField("id").alias("owner_id").cast("String"),
+      col("GraphImages.owner.id").alias("owner_id").cast("String"),
       col("GraphImages").getField("shortcode").alias("shortcode").cast("String"),
       col("GraphImages").getField("taken_at_timestamp").alias("taken_at_timestamp").cast("Long"),
       col("GraphImages").getField("thumbnail_src").alias("thumbnail_src").cast("String"),
@@ -53,7 +53,7 @@ object PostInfoTable {
       col("tags"),
       col("urls"),
       col("username"),
-      col("edges").getField("node").getField("text").as("text").cast("String"),
+      col("edges.node.text").as("text").cast("String"),
       explode(col("thumbnail_resources")).as("thumbnail_resources")
 
       // explode one of the remaining arrays
@@ -79,9 +79,9 @@ object PostInfoTable {
       col("urls"),
       col("taken_at_timestamp"),
       col("username"),
-      col("thumbnail_resources").getField("config_height").alias("config_height").as("thumbnail_resources_config_height").cast("Long"),
-      col("thumbnail_resources").getField("config_width").alias("config_width").as("thumbnail_resources_config_width").cast("Long"),
-      col("thumbnail_resources").getField("src").alias("src").as("thumbnail_resources_config_src").cast("String")
+      col("thumbnail_resources.config_height").alias("config_height").as("thumbnail_resources_config_height").cast("Long"),
+      col("thumbnail_resources.config_width").alias("config_width").as("thumbnail_resources_config_width").cast("Long"),
+      col("thumbnail_resources.src").alias("src").as("thumbnail_resources_config_src").cast("String")
     )
   }
 
