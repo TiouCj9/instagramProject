@@ -19,20 +19,20 @@ object CommentsTable {
 
   def getCommentsData(rawData: DataFrame): DataFrame = {
     getStructGraphImages(rawData).select(
-      col("GraphImages").getField("__typename").alias("typename").cast("String"),
+      col("GraphImages.__typename").cast("String").as("typename"),
       explode(col("GraphImages.comments.data")).as("data")
     )
   }
 
   def getCommentsTablee(input: DataFrame) : DataFrame = {
     getCommentsData(input).select(
-      col("typename"),
-      col("data").getField("created_at").alias("created_at").cast("Long"),
-      col("data").getField("id").alias("id").cast("String"),
-      col("data").getField("owner").getField("id").alias("owner_id").cast("String"),
-      col("data").getField("owner").getField("profile_pic_url").alias("owner_profile_pic_url").cast("String"),
-      col("data").getField("owner").getField("username").alias("owner_username").cast("String"),
-      col("data").getField("text").alias("text").cast("String")
+      col("typename").cast("String"),
+      col("data.created_at").alias("created_at").cast("Long"),
+      col("data.id").alias("id").cast("String"),
+      col("data.owner.id").alias("owner_id").cast("String"),
+      col("data.owner.profile_pic_url").alias("owner_profile_pic_url").cast("String"),
+      col("data.owner.username").alias("owner_username").cast("String"),
+      col("data.text").alias("text").cast("String")
     )
   }
 }
