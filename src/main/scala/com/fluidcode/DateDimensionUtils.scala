@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter
 
    def getDescription(date: LocalDate) : String = {
 
-     date.getDayOfWeek.toString ++ ", "+ date.getMonth.toString + date.getDayOfMonth.toString + ", " +date.getYear.toString
+     date.getDayOfWeek.toString ++ ", "+ date.getMonth.toString +" " + date.getDayOfMonth.toString + ", " +date.getYear.toString
    }
 
    def getQuarter(date: LocalDate) : String = {
@@ -50,15 +50,15 @@ import java.time.format.DateTimeFormatter
     fixDateFormat(nMonth,eastDay,year).plusDays(1)
   }
     def matchingEasterMonday(date: LocalDate): String = {
-      isEasterMonday(date).getDayOfMonth + "-" + isEasterMonday(date).getMonth
+      isEasterMonday(date).getDayOfMonth + "-" + isEasterMonday(date).getMonthValue.toString
     }
 
   def isAscensionDay(date : LocalDate): String = {
-    isEasterMonday(date).plusDays(38).getDayOfMonth + "-" + isEasterMonday(date).plusDays(38).getMonth
+    isEasterMonday(date).plusDays(38).getDayOfMonth + "-" + isEasterMonday(date).plusDays(38).getMonthValue.toString
   }
 
   def isWhitMonday (date : LocalDate): String = {
-    isEasterMonday(date).plusDays(49).getDayOfMonth + "-" + isEasterMonday(date).plusDays(49).getMonth
+    isEasterMonday(date).plusDays(49).getDayOfMonth + "-" + isEasterMonday(date).plusDays(49).getMonthValue.toString
   }
 
 
@@ -78,6 +78,8 @@ import java.time.format.DateTimeFormatter
         case (anyday, easter) if anyday == date.getDayOfWeek.toString && easter == matchingEasterMonday(date) => true
         case (anyday, ascension) if anyday == date.getDayOfWeek.toString && ascension == isAscensionDay(date) => true
         case (anyday, whit) if anyday == date.getDayOfWeek.toString && whit == isWhitMonday(date) => true
+        case ("SATURDAY", anyDate) if anyDate == date.getDayOfMonth+ "-" + date.getMonthValue.toString => true
+        case ("SUNDAY", anyDate) if anyDate == date.getDayOfMonth+ "-" + date.getMonthValue.toString => true
         case _ => false
       }
     }

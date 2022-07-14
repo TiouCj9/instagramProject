@@ -24,7 +24,7 @@ class DateDimensionUtilsSpec extends AnyFlatSpec with Matchers with GivenWhenThe
     When("getDescription Is invoked")
     val result = Seq(getDescription(date)).toDF()
     Then("expectedResult should contain the same element as result")
-    val expectedResult = Seq(("SATURDAY"," JANUARY1"," 2022")).toDF()
+    val expectedResult = Seq(("SATURDAY, JANUARY 1, 2022")).toDF()
     expectedResult.collect() should contain theSameElementsAs(result.collect())
   }
 
@@ -72,7 +72,7 @@ class DateDimensionUtilsSpec extends AnyFlatSpec with Matchers with GivenWhenThe
     When("matchingEasterMonday Is invoked")
     val result = Seq(matchingEasterMonday(date)).toDF()
     Then("expectedResult should contain the same element as result")
-    val expectedResult = Seq(("APRIL-18")).toDF()
+    val expectedResult = Seq(("18-4")).toDF()
     expectedResult.collect should contain theSameElementsAs (result.collect())
   }
 
@@ -84,7 +84,7 @@ class DateDimensionUtilsSpec extends AnyFlatSpec with Matchers with GivenWhenThe
     When("isAscensionDay Is invoked")
     val result = Seq(isAscensionDay(date)).toDF()
     Then("expectedResult should contain the same element as result")
-    val expectedResult = Seq(("MAY-26")).toDF()
+    val expectedResult = Seq(("26-5")).toDF()
     expectedResult.collect should contain theSameElementsAs (result.collect())
   }
 
@@ -96,7 +96,7 @@ class DateDimensionUtilsSpec extends AnyFlatSpec with Matchers with GivenWhenThe
     When("isWhitMonday Is invoked")
     val result = Seq(isWhitMonday(date)).toDF()
     Then("expectedResult should contain the same element as result")
-    val expectedResult = Seq(("JUNE-6")).toDF()
+    val expectedResult = Seq(("6-6")).toDF()
     expectedResult.collect should contain theSameElementsAs result.collect()
   }
 
