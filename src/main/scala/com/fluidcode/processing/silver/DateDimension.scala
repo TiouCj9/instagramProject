@@ -1,9 +1,9 @@
-package com.fluidcode
+package com.fluidcode.processing.silver
 
-import com.fluidcode.DateDimensionUtils._
-import org.apache.spark.sql.{DataFrame, SparkSession}
 import java.time.LocalDate
-
+import com.fluidcode.models._
+import DateDimensionUtils._
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 object DateDimension {
   def createDateDimension(spark: SparkSession, startDate: LocalDate, endDate: LocalDate): DataFrame = {

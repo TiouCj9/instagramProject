@@ -1,10 +1,11 @@
-package com.fluidcode
-import com.fluidcode.PostInfoTable._
+package com.fluidcode.processing.silver
+
+import com.fluidcode.models._
+import com.fluidcode.processing.silver.PostInfoTable._
 import org.apache.spark.sql.SparkSession
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.apache.spark.sql.functions.col
 
   class PostInfoTableSpec extends AnyFlatSpec with Matchers with GivenWhenThen {
     "getPostInfoTable" should "extract comments data from raw data" in {

@@ -1,4 +1,5 @@
-package com.fluidcode
+package com.fluidcode.processing.silver
+
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.{col, explode}
 
@@ -108,9 +109,6 @@ object PostInfoTable {
       col("thumbnail_resources_config_width"),
       col("thumbnail_resources_config_src"),
       col("urls"),
-      col("username")
-    )
+      col("username"))
   }
-
 }
-

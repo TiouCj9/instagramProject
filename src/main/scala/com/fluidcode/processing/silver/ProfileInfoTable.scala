@@ -1,4 +1,4 @@
-package com.fluidcode
+package com.fluidcode.processing.silver
 
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.col

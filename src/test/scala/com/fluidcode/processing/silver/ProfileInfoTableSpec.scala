@@ -1,6 +1,7 @@
-package com.fluidcode
+package com.fluidcode.processing.silver
 
-import com.fluidcode.ProfileInfoTable._
+import com.fluidcode.models._
+import com.fluidcode.processing.silver.ProfileInfoTable._
 import org.apache.spark.sql.SparkSession
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
