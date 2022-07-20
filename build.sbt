@@ -1,4 +1,4 @@
-name := "projectInstagram"
+name := "instagramProject"
 
 version := "0.1"
 

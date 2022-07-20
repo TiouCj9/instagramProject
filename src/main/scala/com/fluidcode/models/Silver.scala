@@ -55,6 +55,9 @@ case class Commentse(
                       text: String)
 
 //Case Class for Profile_Info
-case class Profile(created_time: Long, biography: String, info_followers_count: Long, info_following_count: Long, info_full_name: String,
+case class Profile(created_time: Long,
+                   biography: String,
+                   info_followers_count: Long,
+                   info_following_count: Long, info_full_name: String,
                    info_id: String, info_is_business_account: Boolean, info_is_joined_recently: Boolean, info_is_private: Boolean, info_posts_count: Long,
                    profile_pic_url: String, username: String)
