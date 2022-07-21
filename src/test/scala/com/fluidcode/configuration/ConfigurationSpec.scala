@@ -3,10 +3,9 @@ package com.fluidcode.configuration
 import java.nio.file.Paths
 
 import com.fluidcode.configuration.Configuration._
-import com.fluidcode.configuration.{Configuration, TableProperties}
 import com.fluidcode.models.DateDim
 import org.apache.hadoop.fs.Path
-import org.apache.spark.sql.{QueryTest, Row}
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.QueryTest
 import org.apache.spark.sql.delta.test.DeltaExtendedSparkSession

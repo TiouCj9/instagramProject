@@ -2,8 +2,6 @@ package com.fluidcode.processing.silver
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-
-import com.fluidcode.models._
 import DateDimensionUtils._
 import com.fluidcode.configuration.Configuration
 import org.apache.spark.sql.{DataFrame, SparkSession}
@@ -15,6 +13,7 @@ object DateDimension {
     val formatter = DateTimeFormatter.ofPattern(dateFormat)
     val startDate = LocalDate.parse("2022-01-01", formatter)
     val endDate = LocalDate.parse("2050-01-01", formatter)
+
     createDateDimension(spark: SparkSession, startDate: LocalDate, endDate: LocalDate)
       .write
       .format("delta")

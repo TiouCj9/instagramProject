@@ -1,16 +1,17 @@
 package com.fluidcode.processing.silver
 
-import com.fluidcode.models._
 import com.fluidcode.configuration.Configuration
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.col
-
+import com.fluidcode.processing.silver.CommentsTableUtils._
 object CommentsTable {
   def CreateCommentsTable(spark: SparkSession, conf: Configuration): Unit = {
 
-    val commentsTable = spark.readStream
+    val newArrivingData = spark.readStream
       .format ("delta")
-      .load(s"${conf.rootPath}/${conf.database}${conf.bronzeTable}/")
+      .load(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")
+
+      val commentsData = getCommentsData(newArrivingData)
       .select(
         col("typename").cast("String"),
         col("data.created_at").alias("created_at").cast("Long"),
@@ -21,9 +22,11 @@ object CommentsTable {
         col("data.text").alias("text").cast("String")
       )
 
-    commentsTable.writeStream
-    .format("delta")
-    .trigger (conf.trigger)
-    .start(s"${conf.rootPath}/${conf.database}/${conf.commentsTable}")
+    commentsData
+      .writeStream
+      .format("delta")
+      .trigger(conf.trigger)
+      .option("checkpointlocation" , s"${conf.checkpointDir.toString}/${conf.commentsTable}")
+      .start(s"${conf.rootPath}/${conf.database}/${conf.commentsTable}")
   }
 }

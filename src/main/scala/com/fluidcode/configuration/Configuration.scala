@@ -74,7 +74,7 @@ case class Configuration(
     import spark.implicits._
     val location = s"$rootPath/$database/$bronzeTable"
     val tableProperties = TableProperties(database, bronzeTable, location)
-    val emptyConf: Seq[GraphImages] = Seq()
+    val emptyConf: Seq[RawData] = Seq()
     createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
   }
 
@@ -82,7 +82,7 @@ case class Configuration(
     import spark.implicits._
     val location = s"$rootPath/$database/$commentsTable"
     val tableProperties = TableProperties(database, commentsTable, location)
-    val emptyConf: Seq[graphImagees] = Seq()
+    val emptyConf: Seq[Comments] = Seq()
     createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
   }
 
@@ -98,7 +98,7 @@ case class Configuration(
     import spark.implicits._
     val location = s"$rootPath/$database/$profileInfoTable"
     val tableProperties = TableProperties(database, profileInfoTable, location)
-    val emptyConf: Seq[GraphProfileInfoData] = Seq()
+    val emptyConf: Seq[ProfileInfoResult] = Seq()
     createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
   }
 

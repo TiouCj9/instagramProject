@@ -10,7 +10,7 @@ object ProfileInfoTable {
 
     val postInfoTable = spark.readStream
       .format ("delta")
-      .load(s"${conf.rootPath}/${conf.database}${conf.bronzeTable}/")
+      .load(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")
       .select(
         col("GraphProfileInfo.created_time").as("created_time").cast("Long"),
         col("GraphProfileInfo.info.biography").as("biography").cast("String"),
@@ -29,6 +29,7 @@ object ProfileInfoTable {
     postInfoTable.writeStream
       .format("delta")
       .trigger (conf.trigger)
+      .option( "checkpointlocation" , s"${conf.checkpointDir.toString}/${conf.profileInfoTable}")
       .start(s"${conf.rootPath}/${conf.database}/${conf.profileInfoTable}")
   }
 }

@@ -10,7 +10,7 @@ object PostInfoTable {
 
     val postInfoTable = spark.readStream
       .format ("delta")
-      .load(s"${conf.rootPath}/${conf.database}${conf.bronzeTable}/")
+      .load(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")
       .select(
         col("comments_disabled"),
         col("dimensions_height"),
@@ -38,6 +38,7 @@ object PostInfoTable {
       postInfoTable.writeStream
       .format("delta")
       .trigger (conf.trigger)
-      .start(s"${conf.rootPath}/${conf.database}/${conf.postInfoTable}")
+        .option( "checkpointlocation" , s"${conf.checkpointDir.toString}/${conf.postInfoTable}")
+        .start(s"${conf.rootPath}/${conf.database}/${conf.postInfoTable}")
   }
 }
