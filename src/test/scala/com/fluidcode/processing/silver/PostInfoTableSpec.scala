@@ -1,7 +1,7 @@
 package com.fluidcode.processing.silver
 
 import com.fluidcode.models._
-import com.fluidcode.processing.silver.PostInfoTable._
+import com.fluidcode.processing.silver.PostInfoTableUtils._
 import org.apache.spark.sql.SparkSession
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
@@ -17,7 +17,7 @@ import org.scalatest.matchers.should.Matchers
       import spark.implicits._
 
       Given("the raw data")
-      val RawDataA = Seq(GraphImages
+      val RawDataA = Seq(postInfo
       (Array
         (PostInfoData(
           comments_disabled = false, dimensions = Dimensions(height = 720, width = 1080),display_url = "https://instagram.ftun9-1.fna.fbcdn.net/v/t51.2885-15/e35/s1080x1080/151035755_238172547987750_333496449389803091_n.jpg?tp=1&_nc_ht=instagram.ftun9-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=VUx8EjdNI1gAX-XXbP3&edm=APU89FABAAAA&ccb=7-4&oh=6610cca9bb632966cade9c27cdfd3bf5&oe=60CBE492&_nc_sid=86f79a&ig_cache_key=MjUwOTA5MDAwMjMyMzk0Mjc5NQ%3D%3D.2-ccb7-4",
@@ -29,10 +29,10 @@ import org.scalatest.matchers.should.Matchers
           username = "phil.coutinho"
         )))).toDF()
       When("getPostInfoTable Is invoked")
-      val PostInfoTable = getPostInfoTable(RawDataA)
+      val PostInfoTable = getThumbnail(RawDataA)
 
       Then("PostInfoTable should contain the same element as raw data")
-     val expectedResult = Seq(PostInfoS(comments_disabled = false, dimensions_height = 720, dimensions_width = 1080, display_url = "https://instagram.ftun9-1.fna.fbcdn.net/v/t51.2885-15/e35/s1080x1080/151035755_238172547987750_333496449389803091_n.jpg?tp=1&_nc_ht=instagram.ftun9-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=VUx8EjdNI1gAX-XXbP3&edm=APU89FABAAAA&ccb=7-4&oh=6610cca9bb632966cade9c27cdfd3bf5&oe=60CBE492&_nc_sid=86f79a&ig_cache_key=MjUwOTA5MDAwMjMyMzk0Mjc5NQ%3D%3D.2-ccb7-4",
+     val expectedResult = Seq(PostInfoResult(comments_disabled = false, dimensions_height = 720, dimensions_width = 1080, display_url = "https://instagram.ftun9-1.fna.fbcdn.net/v/t51.2885-15/e35/s1080x1080/151035755_238172547987750_333496449389803091_n.jpg?tp=1&_nc_ht=instagram.ftun9-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=VUx8EjdNI1gAX-XXbP3&edm=APU89FABAAAA&ccb=7-4&oh=6610cca9bb632966cade9c27cdfd3bf5&oe=60CBE492&_nc_sid=86f79a&ig_cache_key=MjUwOTA5MDAwMjMyMzk0Mjc5NQ%3D%3D.2-ccb7-4",
         edge_media_preview_like_count = 692580, text = "Stringfff", edge_media_to_comment_count = 31, gating_info="null", id="2509090007038408221", is_video = false, location = "null",
         media_preview = "null", owner_id = "1382894360", shortcode = "CLSFBFTAbYd", tags = Array("myqueen","oo"), taken_at_timestamp = 1613326858 , thumbnail_resources_config_height = 150, thumbnail_resources_config_width = 150, thumbnail_resources_config_src = "20",
         urls = Array("test","ll"),

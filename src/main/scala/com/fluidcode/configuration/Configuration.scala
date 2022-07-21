@@ -19,12 +19,20 @@ case class Configuration(
                           checkpointDir: Path,
                           trigger: Trigger,
                           dateDimensionTable: String,
+                          bronzeTable: String,
+                          commentsTable: String,
+                          postInfoTable: String,
+                          profileInfoTable: String
                         ) {
   def init(spark: SparkSession, overwrite: Boolean = false): Unit = {
     // TODO: check if init is done successfully
     initDatabase(spark, overwrite)
     initCheckpointDir(overwrite)
     initDateDimensionTable(spark, overwrite)
+    initBronzeTable(spark, overwrite)
+    initCommentsTable(spark, overwrite)
+    initPostInfoTable(spark, overwrite)
+    initProfileInfoTable(spark, overwrite)
   }
 
   def initDatabase(spark: SparkSession, overwrite: Boolean = false): Boolean = {
@@ -62,6 +70,38 @@ case class Configuration(
     createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
   }
 
+  def initBronzeTable(spark: SparkSession, overwrite: Boolean = false): Boolean = {
+    import spark.implicits._
+    val location = s"$rootPath/$database/$bronzeTable"
+    val tableProperties = TableProperties(database, bronzeTable, location)
+    val emptyConf: Seq[GraphImages] = Seq()
+    createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
+  }
+
+  def initCommentsTable(spark: SparkSession, overwrite: Boolean = false): Boolean = {
+    import spark.implicits._
+    val location = s"$rootPath/$database/$commentsTable"
+    val tableProperties = TableProperties(database, commentsTable, location)
+    val emptyConf: Seq[graphImagees] = Seq()
+    createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
+  }
+
+  def initPostInfoTable(spark: SparkSession, overwrite: Boolean = false): Boolean = {
+    import spark.implicits._
+    val location = s"$rootPath/$database/$postInfoTable"
+    val tableProperties = TableProperties(database, postInfoTable, location)
+    val emptyConf: Seq[postInfo] = Seq()
+    createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
+  }
+
+  def initProfileInfoTable(spark: SparkSession, overwrite: Boolean = false): Boolean = {
+    import spark.implicits._
+    val location = s"$rootPath/$database/$profileInfoTable"
+    val tableProperties = TableProperties(database, profileInfoTable, location)
+    val emptyConf: Seq[GraphProfileInfoData] = Seq()
+    createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
+  }
+
   def initCheckpointDir(overwrite: Boolean): Boolean = {
     mkdir(checkpointDir, overwrite)
   }
@@ -72,6 +112,10 @@ object Configuration {
   val DATABASE = "watcher_db"
   val CHECKPOINT_DIR = "checkpoint_dir"
   val DATE_DIMENSION_TABLE = "date_dim"
+  val BRONZE_TABLE = "bronze"
+  val COMMENTS_TABLE = "comments_table"
+  val POST_INFO_TABLE = "post_info_table"
+  val PROFILE_INFO_TABLE = "profile_info_table"
 
 
   def apply(basePath: String): Configuration = {
@@ -88,6 +132,10 @@ object Configuration {
       checkpointDir,
       trigger,
       DATE_DIMENSION_TABLE,
+      BRONZE_TABLE,
+      COMMENTS_TABLE,
+      POST_INFO_TABLE,
+      PROFILE_INFO_TABLE
     )
   }
 

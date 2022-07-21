@@ -1,38 +1,29 @@
 package com.fluidcode.processing.silver
 
-import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.functions.{col, explode}
+import com.fluidcode.models._
+import com.fluidcode.configuration.Configuration
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions.col
 
 object CommentsTable {
+  def CreateCommentsTable(spark: SparkSession, conf: Configuration): Unit = {
 
+    val commentsTable = spark.readStream
+      .format ("delta")
+      .load(s"${conf.rootPath}/${conf.database}${conf.bronzeTable}/")
+      .select(
+        col("typename").cast("String"),
+        col("data.created_at").alias("created_at").cast("Long"),
+        col("data.id").alias("id").cast("String"),
+        col("data.owner.id").alias("owner_id").cast("String"),
+        col("data.owner.profile_pic_url").alias("owner_profile_pic_url").cast("String"),
+        col("data.owner.username").alias("owner_username").cast("String"),
+        col("data.text").alias("text").cast("String")
+      )
 
-  //todo : spark best practices
-  //todo : lazy evaluation/execution (DAG)
-  //TODO : fix table functions
-  //TODO : fix dateDimension & tests
-
-  def getStructGraphImages(GraphImages: DataFrame): DataFrame = {
-    GraphImages.select(
-      explode(col("GraphImages")).as("GraphImages")
-    )
-  }
-
-  def getCommentsData(rawData: DataFrame): DataFrame = {
-    getStructGraphImages(rawData).select(
-      col("GraphImages.__typename").cast("String").as("typename"),
-      explode(col("GraphImages.comments.data")).as("data")
-    )
-  }
-
-  def getCommentsTablee(input: DataFrame) : DataFrame = {
-    getCommentsData(input).select(
-      col("typename").cast("String"),
-      col("data.created_at").alias("created_at").cast("Long"),
-      col("data.id").alias("id").cast("String"),
-      col("data.owner.id").alias("owner_id").cast("String"),
-      col("data.owner.profile_pic_url").alias("owner_profile_pic_url").cast("String"),
-      col("data.owner.username").alias("owner_username").cast("String"),
-      col("data.text").alias("text").cast("String")
-    )
+    commentsTable.writeStream
+    .format("delta")
+    .trigger (conf.trigger)
+    .start(s"${conf.rootPath}/${conf.database}/${conf.commentsTable}")
   }
 }
