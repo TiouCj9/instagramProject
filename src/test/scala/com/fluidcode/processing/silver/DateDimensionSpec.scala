@@ -38,11 +38,14 @@ class DateDimensionSpec extends QueryTest
       val result = Seq(CreateDateDimensionTable(sparkSession, conf, dateDimension:DataFrame))
       Thread.sleep(5000)
 
-      val expectedResult = Seq(DateDim(date = "2022-04-17",description = "SUNDAY, APRIL 17, 2022",dayOfMonth = 17, dayOfWeek = "SUNDAY",
+      val expectedResult = Seq(
+        DateDim(date = "2022-04-17",description = "SUNDAY, APRIL 17, 2022",dayOfMonth = 17, dayOfWeek = "SUNDAY",
         month = "APRIL", year = 2022, quarter = "Q2", isWeekend = true, isHoliday = true),
-        DateDim(date = "2022-04-18",description = "MONDAY, APRIL 18, 2022",dayOfMonth = 18, dayOfWeek = "MONDAY",
+        DateDim(
+          date = "2022-04-18",description = "MONDAY, APRIL 18, 2022",dayOfMonth = 18, dayOfWeek = "MONDAY",
           month = "APRIL", year = 2022, quarter = "Q2", isWeekend = false, isHoliday = false),
-        DateDim(date = "2022-04-19",description = "TUESDAY, APRIL 19, 2022",dayOfMonth = 19, dayOfWeek = "TUESDAY",
+        DateDim(
+          date = "2022-04-19",description = "TUESDAY, APRIL 19, 2022",dayOfMonth = 19, dayOfWeek = "TUESDAY",
           month = "APRIL", year = 2022, quarter = "Q2", isWeekend = false, isHoliday = false)
       ).toDF()
 
