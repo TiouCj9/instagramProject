@@ -6,7 +6,7 @@ import org.apache.spark.sql.QueryTest
 import org.apache.spark.sql.delta.test.DeltaExtendedSparkSession
 import org.apache.spark.sql.test.SharedSparkSession
 import com.fluidcode.processing.silver.PostInfoTable._
-import com.fluidcode.processing.silver.PostInfoTableUtils.getPostInfo
+import com.fluidcode.processing.silver.PostInfoTableUtils.getPostInfoData
 import org.apache.spark.sql.functions.col
 
 class PostInfoTableSpec extends QueryTest
@@ -40,7 +40,7 @@ class PostInfoTableSpec extends QueryTest
         .option("multiLine", true)
         .json("phil.coutinho-1-test.json")
 
-      val expectedResult = getPostInfo(rawData)
+      val expectedResult = getPostInfoData(rawData)
         .select(
           col("comments_disabled"),
           col("dimensions_height"),
