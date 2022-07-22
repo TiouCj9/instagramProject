@@ -11,7 +11,7 @@ object PostInfoTable {
     val postInfoTable = spark.readStream
       .format ("delta")
       .load(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")
-      val postInfo = getPostInfo(postInfoTable)
+      val postInfo = getPostInfoData(postInfoTable)
       .select(
         col("comments_disabled"),
         col("dimensions_height"),

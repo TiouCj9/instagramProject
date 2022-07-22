@@ -6,7 +6,6 @@ import org.apache.spark.sql.QueryTest
 import org.apache.spark.sql.delta.test.DeltaExtendedSparkSession
 import org.apache.spark.sql.test.SharedSparkSession
 import com.fluidcode.processing.silver.ProfileInfoTable._
-import com.fluidcode.processing.silver.PostInfoTableUtils.getThumbnail
 import org.apache.spark.sql.functions.col
 
 class ProfileInfoTableSpec extends QueryTest
