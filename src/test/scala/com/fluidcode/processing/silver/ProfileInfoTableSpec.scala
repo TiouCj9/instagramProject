@@ -1,28 +1,59 @@
 package com.fluidcode.processing.silver
 
-import com.fluidcode.models._
-import org.apache.spark.sql.SparkSession
-import org.scalatest.GivenWhenThen
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import com.fluidcode.configuration.Configuration
+import com.fluidcode.processing.bronze.BronzeLayer.createBronzeTable
+import org.apache.spark.sql.QueryTest
+import org.apache.spark.sql.delta.test.DeltaExtendedSparkSession
+import org.apache.spark.sql.test.SharedSparkSession
+import com.fluidcode.processing.silver.ProfileInfoTable._
+import com.fluidcode.processing.silver.PostInfoTableUtils.getThumbnail
+import org.apache.spark.sql.functions.col
 
-class ProfileInfoTableSpec extends AnyFlatSpec with Matchers with GivenWhenThen {
-  "getProfileInfoTable" should "extract comments data from raw data" in {
-    val spark: SparkSession = SparkSession
-      .builder()
-      .master("local[*]")
-      .appName("flattenDataFrame_Test")
-      .getOrCreate()
-    import spark.implicits._
+class ProfileInfoTableSpec extends QueryTest
+  with SharedSparkSession
+  with DeltaExtendedSparkSession  {
 
-    Given("the raw data")
+  override def afterEach(): Unit = {
+    super.afterEach()
+    spark.catalog
+      .listDatabases()
+      .filter(_.name != "default")
+      .collect()
+      .map(db => spark.sql(s"drop database if exists ${db.name} cascade"))
+  }
+
+  test("createProfileInfoTable should create comments table from Bronze layer" ) {
+    withTempDir { dir =>
+      val sparkSession = spark
+      import sparkSession.implicits._
+      val conf = Configuration(dir.toString)
+      conf.init(spark)   // creation des tables
+
+      createBronzeTable(conf, sparkSession)
+      Thread.sleep(5000)
+      createProfileInfoTable(sparkSession, conf)
+      Thread.sleep(5000)
 
 
-    When("getProfileInfo Is invoked")
-
-    Then("ProfileInfo should contain the same element as raw data")
-    val expectedResult = Seq(
-      ProfileInfoResult(1286323200, "", 23156762, 1092, "Philippe Coutinho","1382894360", false, false, false, 618, "https://instagram.ftun9-1.fna.fbcdn.net/v/t51.2885-19/s150x150/69437559_363974237877617_991135940606951424_n.jpg?tp=1&_nc_ht=instagram.ftun9-1.fna.fbcdn.net&_nc_ohc=uiYY_up9lLwAX8rG9wR&edm=ABfd0MgBAAAA&ccb=7-4&oh=c3a24d2609c83e4cf8d017318f3b034e&oe=60CBC5C0&_nc_sid=7bff83", "phil.coutinho")
-    ).toDF()
+      val result = spark.read.format("delta").load(s"${conf.rootPath}/${conf.database}/${conf.profileInfoTable}")
+      val rawData = spark.read
+        .option("multiLine", true)
+        .json("phil.coutinho-1-test.json")
+        .select(
+          col("GraphProfileInfo.created_time").as("created_time").cast("Long"),
+          col("GraphProfileInfo.info.biography").as("biography").cast("String"),
+          col("GraphProfileInfo.info.followers_count").as("followers_count").cast("Long"),
+          col("GraphProfileInfo.info.following_count").as("following_count").cast("Long"),
+          col("GraphProfileInfo.info.full_name").as("full_name").cast("String"),
+          col("GraphProfileInfo.info.id").as("id").cast("String"),
+          col("GraphProfileInfo.info.is_business_account").as("is_business_account").cast("Boolean"),
+          col("GraphProfileInfo.info.is_joined_recently").as("is_joined_recently").cast("Boolean"),
+          col("GraphProfileInfo.info.is_private").as("is_private").cast("Boolean"),
+          col("GraphProfileInfo.info.posts_count").as("posts_count").cast("Long"),
+          col("GraphProfileInfo.info.profile_pic_url").as("profile_pic_url").cast("String"),
+          col("GraphProfileInfo.username").as("username").cast("String")
+        )
+      assert(result.except(rawData).isEmpty)
+    }
   }
 }

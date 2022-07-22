@@ -6,9 +6,9 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.col
 
 object ProfileInfoTable {
-  def createPostInfoTable(spark: SparkSession, conf: Configuration): Unit = {
+  def createProfileInfoTable(spark: SparkSession, conf: Configuration): Unit = {
 
-    val postInfoTable = spark.readStream
+    val profileInfoTable = spark.readStream
       .format ("delta")
       .load(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")
       .select(
@@ -26,7 +26,7 @@ object ProfileInfoTable {
         col("GraphProfileInfo.username").as("username").cast("String")
       )
 
-    postInfoTable.writeStream
+    profileInfoTable.writeStream
       .format("delta")
       .trigger (conf.trigger)
       .option( "checkpointlocation" , s"${conf.checkpointDir.toString}/${conf.profileInfoTable}")

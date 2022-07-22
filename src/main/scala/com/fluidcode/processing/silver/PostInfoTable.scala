@@ -1,6 +1,6 @@
 package com.fluidcode.processing.silver
 
-import com.fluidcode.models._
+import com.fluidcode.processing.silver.PostInfoTableUtils._
 import com.fluidcode.configuration.Configuration
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.col
@@ -11,6 +11,7 @@ object PostInfoTable {
     val postInfoTable = spark.readStream
       .format ("delta")
       .load(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")
+      val postInfo = getPostInfo(postInfoTable)
       .select(
         col("comments_disabled"),
         col("dimensions_height"),
@@ -35,7 +36,7 @@ object PostInfoTable {
         col("username")
       )
 
-      postInfoTable.writeStream
+    postInfo.writeStream
       .format("delta")
       .trigger (conf.trigger)
         .option( "checkpointlocation" , s"${conf.checkpointDir.toString}/${conf.postInfoTable}")

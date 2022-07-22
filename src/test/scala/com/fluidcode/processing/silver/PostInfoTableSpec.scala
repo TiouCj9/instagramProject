@@ -1,44 +1,70 @@
 package com.fluidcode.processing.silver
 
-import com.fluidcode.models._
-import com.fluidcode.processing.silver.PostInfoTableUtils._
-import org.apache.spark.sql.SparkSession
-import org.scalatest.GivenWhenThen
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import com.fluidcode.configuration.Configuration
+import com.fluidcode.processing.bronze.BronzeLayer.createBronzeTable
+import org.apache.spark.sql.QueryTest
+import org.apache.spark.sql.delta.test.DeltaExtendedSparkSession
+import org.apache.spark.sql.test.SharedSparkSession
+import com.fluidcode.processing.silver.PostInfoTable._
+import com.fluidcode.processing.silver.PostInfoTableUtils.getPostInfo
+import org.apache.spark.sql.functions.col
 
-  class PostInfoTableSpec extends AnyFlatSpec with Matchers with GivenWhenThen {
-    "getPostInfoTable" should "extract comments data from raw data" in {
-      val spark: SparkSession = SparkSession
-        .builder()
-        .master("local[*]")
-        .appName("flattenDataFrame_Test")
-        .getOrCreate()
-      import spark.implicits._
+class PostInfoTableSpec extends QueryTest
+  with SharedSparkSession
+  with DeltaExtendedSparkSession  {
 
-      Given("the raw data")
-      val RawDataA = Seq(postInfo
-      (Array
-        (PostInfoData(
-          comments_disabled = false, dimensions = Dimensions(height = 720, width = 1080),display_url = "https://instagram.ftun9-1.fna.fbcdn.net/v/t51.2885-15/e35/s1080x1080/151035755_238172547987750_333496449389803091_n.jpg?tp=1&_nc_ht=instagram.ftun9-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=VUx8EjdNI1gAX-XXbP3&edm=APU89FABAAAA&ccb=7-4&oh=6610cca9bb632966cade9c27cdfd3bf5&oe=60CBE492&_nc_sid=86f79a&ig_cache_key=MjUwOTA5MDAwMjMyMzk0Mjc5NQ%3D%3D.2-ccb7-4",
-          edge_media_preview_like = Edge_media_preview_like (count = 692580), edge_media_to_caption = Edge_media_to_caption(edges = Array(edges(node = Node(text = "Stringfff")))),
-          edge_media_to_comment = Edge_media_to_comment(count = 31), gating_info = "null", id = "2509090007038408221", is_video = false, location = "null", media_preview = "null" , owner = Owners(id = "1382894360"),
-          shortcode = "CLSFBFTAbYd", tags = Array("myqueen","oo") , taken_at_timestamp = 1613326858, thumbnail_resources = Array(Thumbnail_resources(config_height = 150, config_width = 150, src = "20")) ,
-          thumbnail_src = "https://instagram.ftun9-1.fna.fbcdn.net/v/t51.2885-15/sh0.08/e35/c240.0.960.960a/s640x640/151035755_238172547987750_333496449389803091_n.jpg?tp=1&_nc_ht=instagram.ftun9-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=VUx8EjdNI1gAX-XXbP3&edm=APU89FABAAAA&ccb=7-4&oh=0824aeded92582ee00295d07f98e636f&oe=60CAF7CB&_nc_sid=86f79a&ig_cache_key=MjUwOTA5MDAwMjMyMzk0Mjc5NQ%3D%3D.2.c-ccb7-4",
-          urls = Array("test","ll"),
-          username = "phil.coutinho"
-        )))).toDF()
-      When("getPostInfoTable Is invoked")
-      val PostInfoTable = getThumbnail(RawDataA)
+  override def afterEach(): Unit = {
+    super.afterEach()
+    spark.catalog
+      .listDatabases()
+      .filter(_.name != "default")
+      .collect()
+      .map(db => spark.sql(s"drop database if exists ${db.name} cascade"))
+  }
 
-      Then("PostInfoTable should contain the same element as raw data")
-     val expectedResult = Seq(PostInfoResult(comments_disabled = false, dimensions_height = 720, dimensions_width = 1080, display_url = "https://instagram.ftun9-1.fna.fbcdn.net/v/t51.2885-15/e35/s1080x1080/151035755_238172547987750_333496449389803091_n.jpg?tp=1&_nc_ht=instagram.ftun9-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=VUx8EjdNI1gAX-XXbP3&edm=APU89FABAAAA&ccb=7-4&oh=6610cca9bb632966cade9c27cdfd3bf5&oe=60CBE492&_nc_sid=86f79a&ig_cache_key=MjUwOTA5MDAwMjMyMzk0Mjc5NQ%3D%3D.2-ccb7-4",
-        edge_media_preview_like_count = 692580, text = "Stringfff", edge_media_to_comment_count = 31, gating_info="null", id="2509090007038408221", is_video = false, location = "null",
-        media_preview = "null", owner_id = "1382894360", shortcode = "CLSFBFTAbYd", tags = Array("myqueen","oo"), taken_at_timestamp = 1613326858 , thumbnail_resources_config_height = 150, thumbnail_resources_config_width = 150, thumbnail_resources_config_src = "20",
-        urls = Array("test","ll"),
-        username = "phil.coutinho")).toDF()
+  test("createPostInfoTable should create comments table from Bronze layer" ) {
+    withTempDir { dir =>
+      val sparkSession = spark
+      import sparkSession.implicits._
+      val conf = Configuration(dir.toString)
+      conf.init(spark)   // creation des tables
 
-      expectedResult.collect() should  contain theSameElementsAs(PostInfoTable.collect())
+      createBronzeTable(conf, sparkSession)
+      Thread.sleep(5000)
+      createPostInfoTable(sparkSession, conf)
+      Thread.sleep(5000)
 
+
+      val result = spark.read.format("delta").load(s"${conf.rootPath}/${conf.database}/${conf.postInfoTable}")
+      val rawData = spark.read
+        .option("multiLine", true)
+        .json("phil.coutinho-1-test.json")
+
+      val expectedResult = getPostInfo(rawData)
+        .select(
+          col("comments_disabled"),
+          col("dimensions_height"),
+          col("dimensions_width"),
+          col("display_url"),
+          col("edge_media_preview_like_count"),
+          col("text"),
+          col("edge_media_to_comment_count"),
+          col("gating_info"),
+          col("id"),
+          col("is_video"),
+          col("location"),
+          col("media_preview"),
+          col("owner_id"),
+          col("shortcode"),
+          col("tags"),
+          col("taken_at_timestamp"),
+          col("thumbnail_resources_config_height"),
+          col("thumbnail_resources_config_width"),
+          col("thumbnail_resources_config_src"),
+          col("urls"),
+          col("username")
+        )
+      assert(result.except(expectedResult).isEmpty)
     }
+  }
 }

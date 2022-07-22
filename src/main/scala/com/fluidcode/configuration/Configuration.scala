@@ -90,7 +90,7 @@ case class Configuration(
     import spark.implicits._
     val location = s"$rootPath/$database/$postInfoTable"
     val tableProperties = TableProperties(database, postInfoTable, location)
-    val emptyConf: Seq[postInfo] = Seq()
+    val emptyConf: Seq[PostInfoResult] = Seq()
     createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
   }
 
