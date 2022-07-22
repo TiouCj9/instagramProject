@@ -111,7 +111,7 @@ object Configuration {
   // TODO: names TBD
   val DATABASE = "watcher_db"
   val CHECKPOINT_DIR = "checkpoint_dir"
-  val DATE_DIMENSION_TABLE = "date_dim"
+  val DATE_DIMENSION_TABLE = "date_dimension"
   val BRONZE_TABLE = "bronze"
   val COMMENTS_TABLE = "comments_table"
   val POST_INFO_TABLE = "post_info_table"
