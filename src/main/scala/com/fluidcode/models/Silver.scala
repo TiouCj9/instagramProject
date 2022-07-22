@@ -11,8 +11,10 @@ case class DateDim(
                     isWeekend: Boolean,
                     isHoliday: Boolean)
 
+
+
 //Case Class for Post_Info
-case class GraphImages(
+case class postInfo(
                         GraphImages: Array[PostInfoData])
 case class PostInfoData(
                          comments_disabled: Boolean,
@@ -32,20 +34,27 @@ case class edges (node: Node)
 case class Node (text: String)
 case class Owners(id: String)
 
-case class GraphImagesData(__typename : String, comments : Comment)
-case class GraphImagees(GraphImages: Array[GraphImagesData])
+case class GraphImagesData(__typename : String, comments : Comment, comments_disabled: Boolean,
+                           dimensions: Dimensions,
+                           display_url: String,
+                           edge_media_preview_like: Edge_media_preview_like,
+                           edge_media_to_caption: Edge_media_to_caption,
+                           edge_media_to_comment:Edge_media_to_comment, gating_info: String, id: String, is_video: Boolean, location: String,
+                           media_preview: String, owner: Owners, shortcode: String, tags: Array[String], taken_at_timestamp: Long, thumbnail_resources: Array[Thumbnail_resources],
+                           thumbnail_src: String, urls: Array[String], username: String)
+//case class graphImages(GraphImages: Array[GraphImagesData])
 case class Comment (data: Array[Datum])
 case class Datum (created_at: Long, id: String, owner: Owner, text: String)
 case class Owner(id: String, profile_pic_url: String, username: String)
 
 // case class for profileInfo
-case class PostInfoS(comments_disabled: Boolean, dimensions_height: Long, dimensions_width: Long, display_url: String, edge_media_preview_like_count: Long,
+case class PostInfoResult(comments_disabled: Boolean, dimensions_height: Long, dimensions_width: Long, display_url: String, edge_media_preview_like_count: Long,
                      text:String, edge_media_to_comment_count: Long, gating_info: String, id: String, is_video: Boolean,
                      location: String, media_preview: String,  owner_id: String, shortcode: String,tags: Array[String], taken_at_timestamp: Long, thumbnail_resources_config_height: Long,
                      thumbnail_resources_config_width: Long, thumbnail_resources_config_src: String, urls: Array[String], username: String)
 
 //Case Class for Comments_Info
-case class Commentse(
+case class Comments(
                       typename: String,
                       created_at: Long,
                       id: String,
@@ -55,9 +64,13 @@ case class Commentse(
                       text: String)
 
 //Case Class for Profile_Info
-case class Profile(created_time: Long,
+case class ProfileInfoResult(created_time: Long,
                    biography: String,
                    info_followers_count: Long,
                    info_following_count: Long, info_full_name: String,
                    info_id: String, info_is_business_account: Boolean, info_is_joined_recently: Boolean, info_is_private: Boolean, info_posts_count: Long,
                    profile_pic_url: String, username: String)
+
+case class GraphProfileInfoData(created_time: Long, info: Data , username: String)
+case class Data (biography: String, followers_count: Long, following_count: Long, full_name: String, id: String, is_business_account: Boolean, is_joined_recently: Boolean,
+                 is_private: Boolean, posts_count: Long, profile_pic_url: String)

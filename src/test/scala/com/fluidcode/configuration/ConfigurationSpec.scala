@@ -3,10 +3,9 @@ package com.fluidcode.configuration
 import java.nio.file.Paths
 
 import com.fluidcode.configuration.Configuration._
-import com.fluidcode.configuration.{Configuration, TableProperties}
 import com.fluidcode.models.DateDim
 import org.apache.hadoop.fs.Path
-import org.apache.spark.sql.{QueryTest, Row}
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.QueryTest
 import org.apache.spark.sql.delta.test.DeltaExtendedSparkSession
@@ -348,14 +347,28 @@ with DeltaExtendedSparkSession {
   assert(fs.exists(new Path(s"${basePath.toString}/$CHECKPOINT_DIR")))
   assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE")))
   assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE/$DATE_DIMENSION_TABLE")))
+    assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE/$BRONZE_TABLE")))
+    assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE/$COMMENTS_TABLE")))
+    assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE/$POST_INFO_TABLE")))
+    assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE/$PROFILE_INFO_TABLE")))
 
-  assert(spark.catalog.databaseExists(DATABASE))
+
+
+
+    assert(spark.catalog.databaseExists(DATABASE))
   assert(spark.catalog.tableExists(s"$DATABASE.$DATE_DIMENSION_TABLE"))
+    assert(spark.catalog.tableExists(s"$DATABASE.$BRONZE_TABLE"))
+    assert(spark.catalog.tableExists(s"$DATABASE.$COMMENTS_TABLE"))
+    assert(spark.catalog.tableExists(s"$DATABASE.$POST_INFO_TABLE"))
+    assert(spark.catalog.tableExists(s"$DATABASE.$PROFILE_INFO_TABLE"))
 
-}
+
+
+
+  }
 }
 
-  test("persist should persist given dataframe in the given Table") {
+  test("persist should persist a given dataframe in the given Table") {
   withTempDir { dir =>
   val sparkSession = spark
   import sparkSession.implicits._

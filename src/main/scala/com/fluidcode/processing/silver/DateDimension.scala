@@ -1,28 +1,24 @@
 package com.fluidcode.processing.silver
 
 import java.time.LocalDate
-import com.fluidcode.models._
+import java.time.format.DateTimeFormatter
 import DateDimensionUtils._
+import com.fluidcode.configuration.Configuration
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 object DateDimension {
-  def createDateDimension(spark: SparkSession, startDate: LocalDate, endDate: LocalDate): DataFrame = {
-    import spark.implicits._
 
-    val listDays = generateDates(startDate, endDate)
+  def CreateDateDimensionTable(spark: SparkSession, conf: Configuration, dateDimension : DataFrame): Unit = {
+    val dateFormat = "yyyy-MM-dd"
+    val formatter = DateTimeFormatter.ofPattern(dateFormat)
+    val startDate = LocalDate.parse("2022-01-01", formatter)
+    val endDate = LocalDate.parse("2050-01-01", formatter)
 
-    val dateDimensionList = listDays.map(date =>
-      DateDim(
-        date.toString,
-        getDescription(date),
-        date.getDayOfMonth,
-        date.getDayOfWeek.toString,
-        date.getMonth.toString,
-        date.getYear,
-        getQuarter(date),
-        isWeekend(date),
-        isHoliday(date)
-      ))
-    dateDimensionList.toDF()
+    createDateDimension(spark: SparkSession, startDate: LocalDate, endDate: LocalDate)
+      .write
+      .format("delta")
+      .save(s"${conf.rootPath}/${conf.database}/${conf.dateDimensionTable}")
   }
-}
+
+  }
+

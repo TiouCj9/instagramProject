@@ -1,32 +1,57 @@
 package com.fluidcode.processing.silver
 
-import com.fluidcode.models._
+import com.fluidcode.configuration.Configuration
+import com.fluidcode.processing.bronze.BronzeLayer.createBronzeTable
+import org.apache.spark.sql.QueryTest
+import org.apache.spark.sql.delta.test.DeltaExtendedSparkSession
+import org.apache.spark.sql.test.SharedSparkSession
 import com.fluidcode.processing.silver.CommentsTable._
-import org.apache.spark.sql.SparkSession
-import org.scalatest.GivenWhenThen
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import com.fluidcode.processing.silver.CommentsTableUtils.getCommentsData
+import org.apache.spark.sql.functions.col
 
-class CommentsTableSpec extends AnyFlatSpec with Matchers with GivenWhenThen {
+class CommentsTableSpec extends QueryTest
+  with SharedSparkSession
+  with DeltaExtendedSparkSession  {
 
-  "getCommentsTable" should "extract comments data from raw data" in {
-    val spark: SparkSession = SparkSession
-      .builder()
-      .master("local[*]")
-      .appName("flattenDataFrame_Test")
-      .getOrCreate()
-    import spark.implicits._
+  override def afterEach(): Unit = {
+    super.afterEach()
+    spark.catalog
+      .listDatabases()
+      .filter(_.name != "default")
+      .collect()
+      .map(db => spark.sql(s"drop database if exists ${db.name} cascade"))
+  }
+
+  test("CreateCommentsTable should create comments table from Bronze layer" ) {
+    withTempDir { dir =>
+      val sparkSession = spark
+      import sparkSession.implicits._
+      val conf = Configuration(dir.toString)
+      conf.init(spark)   // creation des tables
+
+      createBronzeTable(conf, sparkSession)
+      Thread.sleep(5000)
+      CreateCommentsTable(sparkSession, conf)
+      Thread.sleep(5000)
 
 
-    Given("the raw data")
-    val rawData = Seq(GraphImagees(Array(GraphImagesData(__typename = "GraphImage", comments = Comment(data = Array(Datum(created_at = 1617213018,id = "17848025879550357",owner = Owner(id = "11357305166", profile_pic_url = "https://instagram.ftun9-1.fna.fbcdn.net/v/t51.2885-19/s150x150/199980176_874196559834598_6114321173318074396_n.jpg?tp=1&_nc_ht=instagram.ftun9-1.fna.fbcdn.net&_nc_ohc=KcNRsr4RA5YAX8aN0h2&edm=AI-cjbYBAAAA&ccb=7-4&oh=d2365d2e541dac89ae18dc334cec4962&oe=60CAF207&_nc_sid=ba0005",username = "proudlycouto"),text = "congratulation"))))))).toDF()
+      val result = spark.read.format("delta").load(s"${conf.rootPath}/${conf.database}/${conf.commentsTable}")
+      val rawData = spark.read
+        .option("multiLine", true)
+        .json("phil.coutinho-1-test.json")
 
-    When("CommentsTable Is invoked")
-    val commentsTable = getCommentsTablee(rawData)
-    Then("CommentTable should contain the same element as raw data")
-    val expectedResult = Seq(
-      Commentse(typename = "GraphImage",created_at = 1617213018, id = "17848025879550357", owner_id = "11357305166", owner_profile_pic_url = "https://instagram.ftun9-1.fna.fbcdn.net/v/t51.2885-19/s150x150/199980176_874196559834598_6114321173318074396_n.jpg?tp=1&_nc_ht=instagram.ftun9-1.fna.fbcdn.net&_nc_ohc=KcNRsr4RA5YAX8aN0h2&edm=AI-cjbYBAAAA&ccb=7-4&oh=d2365d2e541dac89ae18dc334cec4962&oe=60CAF207&_nc_sid=ba0005",owner_username = "proudlycouto", text = "congratulation")).toDF()
-    expectedResult.collect() should contain theSameElementsAs(commentsTable.collect())
+        val expectedResult = getCommentsData(rawData)
+      .select(
+        col("typename").cast("String"),
+        col("data.created_at").alias("created_at").cast("Long"),
+        col("data.id").alias("id").cast("String"),
+        col("data.owner.id").alias("owner_id").cast("String"),
+        col("data.owner.profile_pic_url").alias("owner_profile_pic_url").cast("String"),
+        col("data.owner.username").alias("owner_username").cast("String"),
+        col("data.text").alias("text").cast("String")
+      )
+      assert(result.except(expectedResult).isEmpty)
 
+    }
   }
 }
