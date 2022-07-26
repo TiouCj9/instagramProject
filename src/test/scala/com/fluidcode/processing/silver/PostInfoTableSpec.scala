@@ -19,8 +19,8 @@ class PostInfoTableSpec extends QueryTest
       import sparkSession.implicits._
       val conf = Configuration(dir.toString)
       conf.init(spark)   // creation des tables
-
-      createBronzeTable(conf, sparkSession)
+      val path = "phil.coutinho-1-test.json"
+      createBronzeTable(conf, sparkSession, path)
       Thread.sleep(5000)
       createPostInfoTable(sparkSession, conf)
       Thread.sleep(5000)
@@ -29,7 +29,7 @@ class PostInfoTableSpec extends QueryTest
       val result = spark.read.format("delta").load(s"${conf.rootPath}/${conf.database}/${conf.postInfoTable}")
       val rawData = spark.read
         .option("multiLine", true)
-        .json("phil.coutinho-1-test.json")
+        .json(path)
 
       val expectedResult = getPostInfoData(rawData)
         .select(

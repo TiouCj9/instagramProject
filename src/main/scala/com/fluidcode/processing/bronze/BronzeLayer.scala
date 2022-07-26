@@ -6,9 +6,9 @@ import org.apache.spark.sql.{Encoders, SparkSession}
 
 object BronzeLayer {
 
-  def createBronzeTable(conf: Configuration, spark:SparkSession): Unit = {
+  def createBronzeTable(conf: Configuration, spark:SparkSession, path: String): Unit = {
     val schema = Encoders.product[RawData].schema
-    val bronzeData = spark.readStream.schema(schema).json("phil.coutinho-1-test.json")
+    val bronzeData = spark.readStream.schema(schema).json(path)
 
     bronzeData
       .writeStream
