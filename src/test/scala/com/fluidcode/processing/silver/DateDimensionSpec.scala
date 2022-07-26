@@ -15,15 +15,6 @@ class DateDimensionSpec extends QueryTest
   with SharedSparkSession
   with DeltaExtendedSparkSession  {
 
-  override def afterEach(): Unit = {
-    super.afterEach()
-    spark.catalog
-      .listDatabases()
-      .filter(_.name != "default")
-      .collect()
-      .map(db => spark.sql(s"drop database if exists ${db.name} cascade"))
-  }
-
   test("CreateDateDimensionTable should create dateDimension Table" ) {
     withTempDir { dir =>
       val sparkSession = spark
