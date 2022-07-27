@@ -24,9 +24,10 @@ class BronzeLayerSpec extends QueryTest
       val conf = Configuration(dir.toString)
       conf.init(sparkSession)
       import sparkSession.implicits._
-      createBronzeTable(conf, sparkSession)
+      val path = "phil.coutinho-1-test.json"
+      createBronzeTable(conf, sparkSession,path)
       val result = spark.read.format("delta").load(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")
-      val expectedResult = spark.read.option("multiLine", true).json("phil.coutinho-1-test.json")
+      val expectedResult = spark.read.option("multiLine", true).json(path)
       assert(result.except(expectedResult).isEmpty)
     }
   }

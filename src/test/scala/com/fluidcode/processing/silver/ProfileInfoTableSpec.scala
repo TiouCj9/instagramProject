@@ -23,21 +23,19 @@ class ProfileInfoTableSpec extends QueryTest
 
   test("createProfileInfoTable should create comments table from Bronze layer" ) {
     withTempDir { dir =>
+      val path = "phil.coutinho-1-test.json"
       val sparkSession = spark
       import sparkSession.implicits._
       val conf = Configuration(dir.toString)
       conf.init(spark)   // creation des tables
-
-      createBronzeTable(conf, sparkSession)
+      createBronzeTable(conf, sparkSession, path)
       Thread.sleep(5000)
       createProfileInfoTable(sparkSession, conf)
       Thread.sleep(5000)
-
-
       val result = spark.read.format("delta").load(s"${conf.rootPath}/${conf.database}/${conf.profileInfoTable}")
       val rawData = spark.read
         .option("multiLine", true)
-        .json("phil.coutinho-1-test.json")
+        .json(path)
         .select(
           col("GraphProfileInfo.created_time").as("created_time").cast("Long"),
           col("GraphProfileInfo.info.biography").as("biography").cast("String"),

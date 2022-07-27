@@ -4,136 +4,105 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 import com.fluidcode.processing.silver.DateDimensionUtils._
-import org.apache.spark.sql.SparkSession
-import org.scalatest.GivenWhenThen
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import org.apache.spark.sql.delta.test.DeltaExtendedSparkSession
+import org.apache.spark.sql.test.SharedSparkSession
+import org.apache.spark.sql.{QueryTest, SparkSession}
 
-class DateDimensionUtilsSpec extends AnyFlatSpec with Matchers with GivenWhenThen {
-  val spark: SparkSession = SparkSession
-    .builder()
-    .master("local[*]")
-    .appName("projectInstagram")
-    .getOrCreate()
-  import spark.implicits._
+class DateDimensionUtilsSpec extends QueryTest
+  with SharedSparkSession
+  with DeltaExtendedSparkSession  {
 
-  "getDescription" should "Return date description" in {
-    Given("LocalDate")
+  test("getDescription should Return date description" ) {
+    withTempDir { dir =>
+      val sparkSession = spark
+      import sparkSession.implicits._
+      val dateFormat = "yyyy-MM-dd"
+      val formatter = DateTimeFormatter.ofPattern(dateFormat)
+      val date = LocalDate.parse("2022-01-01", formatter)
+      val result = getDescription(date)
+      val expectedResult = ("SATURDAY, JANUARY 1, 2022")
+
+      expectedResult contains result
+    }
+  }
+
+  test("getQuarter Return in which quarter of the year" ) {
+
     val dateFormat = "yyyy-MM-dd"
     val formatter = DateTimeFormatter.ofPattern(dateFormat)
     val date = LocalDate.parse("2022-01-01", formatter)
-    When("getDescription Is invoked")
-    val result = Seq(getDescription(date)).toDF()
-    Then("expectedResult should contain the same element as result")
-    val expectedResult = Seq(("SATURDAY, JANUARY 1, 2022")).toDF()
-    expectedResult.collect() should contain theSameElementsAs(result.collect())
+    val result = getQuarter(date)
+    val expectedResult = ("Q1")
+    expectedResult contains result
   }
+  test("isWeekend Return if a date is a weekend or not" ) {
 
-  "getQuarter" should "Return in which quarter of the year" in {
-    Given("LocalDate")
     val dateFormat = "yyyy-MM-dd"
     val formatter = DateTimeFormatter.ofPattern(dateFormat)
     val date = LocalDate.parse("2022-01-01", formatter)
-    When("getQuarter Is invoked")
-    val result = Seq(getQuarter(date)).toDF()
-    Then("expectedResult should contain the same element as result")
-    val expectedResult = Seq(("Q1")).toDF()
-    expectedResult.collect should contain theSameElementsAs (result.collect())
+    val result = isWeekend(date).toString
+    val expectedResult = "true"
+    expectedResult contains result
   }
-
-  "isWeekend" should "Return if a date is a weekend or not" in {
-    Given("LocalDate")
-    val dateFormat = "yyyy-MM-dd"
-    val formatter = DateTimeFormatter.ofPattern(dateFormat)
-    val date = LocalDate.parse("2022-01-01", formatter)
-    When("isWeekend Is invoked")
-    val result = Seq(isWeekend(date)).toDF()
-    Then("expectedResult should contain the same element as result")
-    val expectedResult = true
-    Seq(expectedResult).toDF().collect should contain theSameElementsAs (result.collect())
-  }
-
-  "isEasterMonday" should "Return if a date is an easter monday day or not" in {
-    Given("LocalDate")
+  test("isEasterMonday Return if a date is an easter monday day or not" ) {
     val dateFormat = "yyyy-MM-dd"
     val formatter = DateTimeFormatter.ofPattern(dateFormat)
     val date = LocalDate.parse("2022-04-18", formatter)
-    When("isEasterMonday Is invoked")
-    val result = Seq(isEasterMonday(date))
-    Then("expectedResult should contain the same element as result")
-    val expectedResult = Seq(LocalDate.parse("2022-04-18", formatter))
-    expectedResult should contain theSameElementsAs result
+    val result = isEasterMonday(date).toString
+    val expectedResult = LocalDate.parse("2022-04-18", formatter).toString
+    expectedResult contains result
   }
 
-  "matchingEasterMonday" should "Return full date with description and holidays" in {
-    Given("LocalDate")
+  test("matchingEasterMonday Return full date with description and holidays" ) {
     val dateFormat = "yyyy-MM-dd"
     val formatter = DateTimeFormatter.ofPattern(dateFormat)
     val date = LocalDate.parse("2022-04-18", formatter)
-    When("matchingEasterMonday Is invoked")
-    val result = Seq(matchingEasterMonday(date)).toDF()
-    Then("expectedResult should contain the same element as result")
-    val expectedResult = Seq(("18-4")).toDF()
-    expectedResult.collect should contain theSameElementsAs (result.collect())
+    val result = matchingEasterMonday(date)
+    val expectedResult = ("18-4")
+    expectedResult contains result
   }
 
-  "isAscensionDay" should "Return if a date is an ascension day or not" in {
-    Given("LocalDate")
+  test("isAscensionDay Return if a date is an ascension day or not" ) {
+
     val dateFormat = "yyyy-MM-dd"
     val formatter = DateTimeFormatter.ofPattern(dateFormat)
     val date = LocalDate.parse("2022-05-26", formatter)
-    When("isAscensionDay Is invoked")
-    val result = Seq(isAscensionDay(date)).toDF()
-    Then("expectedResult should contain the same element as result")
-    val expectedResult = Seq(("26-5")).toDF()
-    expectedResult.collect should contain theSameElementsAs (result.collect())
+    val result = isAscensionDay(date)
+    val expectedResult = ("26-5")
+    expectedResult contains result
   }
 
-  "isWhitMonday" should "Return if a date is a whit monday day or not" in {
-    Given("LocalDate")
+  test("isWhitMonday Return if a date is a whit monday day or not" ) {
     val dateFormat = "yyyy-MM-dd"
     val formatter = DateTimeFormatter.ofPattern(dateFormat)
     val date = LocalDate.parse("2022-06-06", formatter)
-    When("isWhitMonday Is invoked")
-    val result = Seq(isWhitMonday(date)).toDF()
-    Then("expectedResult should contain the same element as result")
-    val expectedResult = Seq(("6-6")).toDF()
-    expectedResult.collect should contain theSameElementsAs result.collect()
+    val result = isWhitMonday(date)
+    val expectedResult = ("6-6")
+    expectedResult contains result
   }
 
-  "fixDateFormat" should "Fix Dates Format by adding 0 to each month and day" in {
-    Given("LocalDate")
+  test("fixDateFormat Fix Dates Format by adding 0 to each month and day" ) {
     val dateFormat = "yyyy-MM-dd"
     val formatter = DateTimeFormatter.ofPattern(dateFormat)
-    When("fixDateFormat Is invoked")
-    val result = Seq(fixDateFormat(month = 1, day = 1, year = 2022))
-    Then("expectedResult should contain the same element as result")
-    val expectedResult = LocalDate.parse("2022-01-01", formatter)
-    Seq(expectedResult) should contain theSameElementsAs result
+    val result = fixDateFormat(month = 1, day = 1, year = 2022)
+    val expectedResult = LocalDate.parse("2022-01-01", formatter).toString
+    expectedResult contains result
   }
 
-  "isHoliday" should "Define if a day is a holiday or not" in {
-    Given("LocalDate")
+  test("isHoliday Define if a day is a holiday or not" ) {
     val dateFormat = "yyyy-MM-dd"
     val formatter = DateTimeFormatter.ofPattern(dateFormat)
     val date = LocalDate.parse("2022-06-06", formatter)
-    When("isHoliday Is invoked")
-    val result = Seq(isHoliday(date)).toDF()
-    Then("expectedResult should contain the same element as result")
-    val expectedResult = true
-    Seq(expectedResult).toDF().collect() should contain theSameElementsAs result.collect()
-
+    val result = isHoliday(date).toString
+    val expectedResult = "true"
+    expectedResult contains result
   }
-
-  "createDateDimension" should "Return full date with description and holidays" in {
-    Given("LocalDate")
+  test("createDateDimension Return full date with description and holidays" ) {
     val dateFormat = "yyyy-MM-dd"
     val formatter = DateTimeFormatter.ofPattern(dateFormat)
     val startDate = LocalDate.parse("2022-04-17", formatter)
     val endDate = LocalDate.parse("2022-04-19", formatter)
-    When("showDate Is invoked")
     val result = createDateDimension(spark, startDate,endDate)
-    Then("showDate should contain the same element as raw data")
     //Seq(expectedResult).toDF().collect should contain theSameElementsAs (result.collect())
     result.show()
 
