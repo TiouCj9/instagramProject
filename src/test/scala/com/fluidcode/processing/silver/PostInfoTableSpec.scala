@@ -1,11 +1,10 @@
 package com.fluidcode.processing.silver
 
 import com.fluidcode.configuration.Configuration
-import com.fluidcode.processing.bronze.BronzeLayer.createBronzeTable
+import com.fluidcode.processing.bronze.BronzeLayer
 import org.apache.spark.sql.QueryTest
 import org.apache.spark.sql.delta.test.DeltaExtendedSparkSession
 import org.apache.spark.sql.test.SharedSparkSession
-import com.fluidcode.processing.silver.PostInfoTable._
 import com.fluidcode.processing.silver.PostInfoTableUtils.getPostInfoData
 import org.apache.spark.sql.functions.col
 
@@ -15,17 +14,18 @@ class PostInfoTableSpec extends QueryTest
 
   test("createPostInfoTable should create comments table from Bronze layer" ) {
     withTempDir { dir =>
-      val path = "phil.coutinho-1-test.json"
       val sparkSession = spark
       import sparkSession.implicits._
       val conf = Configuration(dir.toString)
       conf.init(spark)   // creation des tables
 
-      createBronzeTable(conf, sparkSession, path)
+      val path = "phil.coutinho-1-test.json"
+      val bronzeLayer = new BronzeLayer(conf, sparkSession, path)
+      bronzeLayer.createBronzeTable()
       Thread.sleep(5000)
-      createPostInfoTable(sparkSession, conf)
+      val createPostInfoTable = new PostInfoTable(sparkSession, conf)
+      createPostInfoTable.createPostInfoTable().processAllAvailable()
       Thread.sleep(5000)
-
 
       val result = spark.read.format("delta").load(s"${conf.rootPath}/${conf.database}/${conf.postInfoTable}")
       val rawData = spark.read

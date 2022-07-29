@@ -1,11 +1,10 @@
 package com.fluidcode.processing.silver
 
 import com.fluidcode.configuration.Configuration
-import com.fluidcode.processing.bronze.BronzeLayer.createBronzeTable
+import com.fluidcode.processing.bronze.BronzeLayer
 import org.apache.spark.sql.QueryTest
 import org.apache.spark.sql.delta.test.DeltaExtendedSparkSession
 import org.apache.spark.sql.test.SharedSparkSession
-import com.fluidcode.processing.silver.ProfileInfoTable._
 import org.apache.spark.sql.functions.col
 
 class ProfileInfoTableSpec extends QueryTest
@@ -14,14 +13,16 @@ class ProfileInfoTableSpec extends QueryTest
 
   test("createProfileInfoTable should create comments table from Bronze layer" ) {
     withTempDir { dir =>
-      val path = "phil.coutinho-1-test.json"
       val sparkSession = spark
       import sparkSession.implicits._
       val conf = Configuration(dir.toString)
       conf.init(spark)   // creation des tables
-      createBronzeTable(conf, sparkSession, path)
+      val path = "phil.coutinho-1-test.json"
+      val bronzeLayer = new BronzeLayer(conf, sparkSession, path)
+      bronzeLayer.createBronzeTable()
       Thread.sleep(5000)
-      createProfileInfoTable(sparkSession, conf)
+      val createProfileInfo = new ProfileInfoTable(spark, conf)
+      createProfileInfo.createProfileInfoTable().processAllAvailable()
       Thread.sleep(5000)
       val result = spark.read.format("delta").load(s"${conf.rootPath}/${conf.database}/${conf.profileInfoTable}")
       val rawData = spark.read
