@@ -8,7 +8,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 
 object DateDimension {
 
-  def CreateDateDimensionTable(spark: SparkSession, conf: Configuration, dateDimension : DataFrame): Unit = {
+  def CreateDateDimensionTable(spark: SparkSession, conf: Configuration): Unit = {
     val dateFormat = "yyyy-MM-dd"
     val formatter = DateTimeFormatter.ofPattern(dateFormat)
     val startDate = LocalDate.parse("2022-01-01", formatter)
