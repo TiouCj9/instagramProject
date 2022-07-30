@@ -5,13 +5,13 @@ import com.fluidcode.configuration.Configuration
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.col
 
-object PostInfoTable {
-  def createPostInfoTable(spark: SparkSession, conf: Configuration): Unit = {
+class PostInfoTable (spark: SparkSession, conf: Configuration){
+  def createPostInfoTable() = {
 
-    val postInfoTable = spark.readStream
+    val rawData = spark.readStream
       .format ("delta")
       .load(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")
-      val postInfo = getPostInfoData(postInfoTable)
+      val postInfoData = getPostInfoData(rawData)
       .select(
         col("comments_disabled"),
         col("dimensions_height"),
@@ -36,10 +36,11 @@ object PostInfoTable {
         col("username")
       )
 
-    postInfo.writeStream
+        .writeStream
       .format("delta")
       .trigger (conf.trigger)
         .option( "checkpointlocation" , s"${conf.checkpointDir.toString}/${conf.postInfoTable}")
         .start(s"${conf.rootPath}/${conf.database}/${conf.postInfoTable}")
+    postInfoData
   }
 }

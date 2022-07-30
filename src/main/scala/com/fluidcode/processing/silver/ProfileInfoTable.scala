@@ -1,12 +1,11 @@
 package com.fluidcode.processing.silver
 
-import com.fluidcode.models._
 import com.fluidcode.configuration.Configuration
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.col
 
-object ProfileInfoTable {
-  def createProfileInfoTable(spark: SparkSession, conf: Configuration): Unit = {
+class ProfileInfoTable (spark: SparkSession, conf: Configuration) {
+  def createProfileInfoTable() = {
 
     val profileInfoTable = spark.readStream
       .format ("delta")
@@ -26,10 +25,11 @@ object ProfileInfoTable {
         col("GraphProfileInfo.username").as("username").cast("String")
       )
 
-    profileInfoTable.writeStream
+    .writeStream
       .format("delta")
       .trigger (conf.trigger)
       .option( "checkpointlocation" , s"${conf.checkpointDir.toString}/${conf.profileInfoTable}")
       .start(s"${conf.rootPath}/${conf.database}/${conf.profileInfoTable}")
+    profileInfoTable
   }
 }

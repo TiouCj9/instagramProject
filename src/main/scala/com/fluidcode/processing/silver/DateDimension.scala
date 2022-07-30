@@ -17,8 +17,8 @@ object DateDimension {
     createDateDimension(spark: SparkSession, startDate: LocalDate, endDate: LocalDate)
       .write
       .format("delta")
+      .mode("append")
       .save(s"${conf.rootPath}/${conf.database}/${conf.dateDimensionTable}")
   }
-
-  }
+}
 

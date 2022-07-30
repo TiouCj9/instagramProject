@@ -4,8 +4,8 @@ import com.fluidcode.configuration.Configuration
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.col
 import com.fluidcode.processing.silver.CommentsTableUtils._
-object CommentsTable {
-  def CreateCommentsTable(spark: SparkSession, conf: Configuration): Unit = {
+class CommentsTable(spark: SparkSession, conf: Configuration) {
+  def CreateCommentsTable() = {
 
     val newArrivingData = spark.readStream
       .format ("delta")
@@ -22,11 +22,11 @@ object CommentsTable {
         col("data.text").alias("text").cast("String")
       )
 
-    commentsData
       .writeStream
       .format("delta")
       .trigger(conf.trigger)
       .option("checkpointlocation" , s"${conf.checkpointDir.toString}/${conf.commentsTable}")
       .start(s"${conf.rootPath}/${conf.database}/${conf.commentsTable}")
+    commentsData
   }
 }

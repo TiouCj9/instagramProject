@@ -1,11 +1,10 @@
 package com.fluidcode.processing.silver
 
 import com.fluidcode.configuration.Configuration
-import com.fluidcode.processing.bronze.BronzeLayer.createBronzeTable
+import com.fluidcode.processing.bronze.BronzeLayer
 import org.apache.spark.sql.QueryTest
 import org.apache.spark.sql.delta.test.DeltaExtendedSparkSession
 import org.apache.spark.sql.test.SharedSparkSession
-import com.fluidcode.processing.silver.CommentsTable._
 import com.fluidcode.processing.silver.CommentsTableUtils.getCommentsData
 import org.apache.spark.sql.functions.col
 
@@ -19,10 +18,13 @@ class CommentsTableSpec extends QueryTest
       import sparkSession.implicits._
       val conf = Configuration(dir.toString)
       conf.init(spark)   // creation des tables
+
       val path = "phil.coutinho-1-test.json"
-      createBronzeTable(conf, sparkSession, path)
+      val bronzeLayer = new BronzeLayer(conf, sparkSession, path)
+      bronzeLayer.createBronzeTable()
       Thread.sleep(5000)
-      CreateCommentsTable(sparkSession, conf)
+      val createCommentsTable = new CommentsTable(spark, conf)
+      createCommentsTable.CreateCommentsTable().processAllAvailable()
       Thread.sleep(5000)
 
 
@@ -42,7 +44,6 @@ class CommentsTableSpec extends QueryTest
         col("data.text").alias("text").cast("String")
       )
       assert(result.except(expectedResult).isEmpty)
-
     }
   }
 }
