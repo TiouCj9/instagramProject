@@ -114,7 +114,7 @@ object Configuration {
   val DATE_DIMENSION_TABLE = "dateDimension"
   val BRONZE_TABLE = "bronzeTable"
   val COMMENTS_TABLE = "commentsTable"
-  val POST_INFO_TABLE = "postInfo_table"
+  val POST_INFO_TABLE = "postInfoTable"
   val PROFILE_INFO_TABLE = "profileInfo_table"
 
 

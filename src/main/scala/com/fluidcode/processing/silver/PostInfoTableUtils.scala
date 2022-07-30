@@ -12,26 +12,26 @@ object PostInfoTableUtils {
   }
   def getCommentsInfoData(data: DataFrame): DataFrame = {
     getStructGraphImages(data).select(
-      col("GraphImages").getField("comments_disabled").alias("comments_disabled").cast("Boolean"),
-      col("GraphImages.dimensions.height").alias("dimensions_height").cast("Long"),
-      col("GraphImages.dimensions.width").alias("dimensions_width").cast("Long"),
-      col("GraphImages").getField("display_url").alias("display_url").cast("String"),
-      col("GraphImages.edge_media_preview_like.count").alias("edge_media_preview_like_count").cast("Long"),
-      col("GraphImages.edge_media_to_comment.count").alias("edge_media_to_comment_count").cast("Long"),
-      col("GraphImages").getField("gating_info").alias("gating_info").cast("String"),
-      col("GraphImages").getField("id").alias("id").cast("String"),
-      col("GraphImages").getField("is_video").alias("is_video").cast("Boolean"),
-      col("GraphImages").getField("location").alias("location").cast("String"),
-      col("GraphImages").getField("media_preview").alias("media_preview").cast("String"),
-      col("GraphImages.owner.id").alias("owner_id").cast("String"),
-      col("GraphImages").getField("shortcode").alias("shortcode").cast("String"),
-      col("GraphImages").getField("taken_at_timestamp").alias("taken_at_timestamp").cast("Long"),
-      col("GraphImages").getField("thumbnail_src").alias("thumbnail_src").cast("String"),
-      col("GraphImages").getField("username").alias("username").cast("String"),
-      col("GraphImages").getField("thumbnail_resources").alias("thumbnail_resources"),
-      col("GraphImages").getField("urls").alias("urls"),
-      col("GraphImages").getField("tags").alias("tags"),
-      explode(col("GraphImages").getField("edge_media_to_caption").getField("edges")).as("edges")
+      col("GraphImages.comments_disabled").alias("comments_disabled"),
+      col("GraphImages.dimensions.height").alias("dimensions_height"),
+      col("GraphImages.dimensions.width").alias("dimensions_width"),
+      col("GraphImages.display_url").alias("display_url"),
+      col("GraphImages.edge_media_preview_like.count").alias("edge_media_preview_like_count"),
+      col("GraphImages.edge_media_to_comment.count").alias("edge_media_to_comment_count"),
+      col("GraphImages.gating_info").alias("gating_info"),
+      col("GraphImages.id").alias("id"),
+      col("GraphImages.is_video").alias("is_video"),
+      col("GraphImages.location").alias("location"),
+      col("GraphImages.media_preview").alias("media_preview"),
+      col("GraphImages.owner.id").alias("owner_id"),
+      col("GraphImages.shortcode").alias("shortcode"),
+      col("GraphImages.taken_at_timestamp").alias("taken_at_timestamp"),
+      col("GraphImages.thumbnail_src").alias("thumbnail_src"),
+      col("GraphImages.username").alias("username"),
+      col("GraphImages.thumbnail_resources").alias("thumbnail_resources"),
+      col("GraphImages.urls").alias("urls"),
+      col("GraphImages.tags").alias("tags"),
+      explode(col("GraphImages.edge_media_to_caption.edges")).as("edges")
 
     )
   }
@@ -56,9 +56,9 @@ object PostInfoTableUtils {
       col("username"),
       col("edges.node.text").as("text").cast("String"),
       explode(col("thumbnail_resources")).as("thumbnail_resources")
-
     )
   }
+
   def getPostInfoData(Datum: DataFrame): DataFrame ={
     getEdgeMediaCaptionData(Datum).select(
       col("comments_disabled"),
