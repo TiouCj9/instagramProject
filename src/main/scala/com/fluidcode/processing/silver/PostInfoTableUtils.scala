@@ -32,9 +32,9 @@ object PostInfoTableUtils {
       col("GraphImages.urls").alias("urls"),
       col("GraphImages.tags").alias("tags"),
       explode(col("GraphImages.edge_media_to_caption.edges")).as("edges")
-
     )
   }
+
   def getEdgeMediaCaptionData(Datas: DataFrame): DataFrame = {
     getCommentsInfoData(Datas).select(
       col("comments_disabled"),
@@ -54,7 +54,7 @@ object PostInfoTableUtils {
       col("tags"),
       col("urls"),
       col("username"),
-      col("edges.node.text").as("text").cast("String"),
+      col("edges.node.text").as("text"),
       explode(col("thumbnail_resources")).as("thumbnail_resources")
     )
   }
@@ -79,15 +79,11 @@ object PostInfoTableUtils {
       col("urls"),
       col("taken_at_timestamp"),
       col("username"),
-      col("thumbnail_resources.config_height").alias("config_height").as("thumbnail_resources_config_height").cast("Long"),
-      col("thumbnail_resources.config_width").alias("config_width").as("thumbnail_resources_config_width").cast("Long"),
-      col("thumbnail_resources.src").alias("src").as("thumbnail_resources_config_src").cast("String"),
+      col("thumbnail_resources.config_height").as("thumbnail_resources_config_height"),
+      col("thumbnail_resources.config_width").as("thumbnail_resources_config_width"),
+      col("thumbnail_resources.src").as("thumbnail_resources_config_src"),
       col("urls"),
       col("username")
     )
   }
-
-
-
-
 }

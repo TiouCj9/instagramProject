@@ -111,11 +111,11 @@ object Configuration {
   // TODO: names TBD
   val DATABASE = "watcher_db"
   val CHECKPOINT_DIR = "checkpoint_dir"
-  val DATE_DIMENSION_TABLE = "dateDimension"
-  val BRONZE_TABLE = "bronzeTable"
-  val COMMENTS_TABLE = "commentsTable"
-  val POST_INFO_TABLE = "postInfoTable"
-  val PROFILE_INFO_TABLE = "profileInfo_table"
+  val DATE_DIMENSION_TABLE = "dateDim"
+  val BRONZE_TABLE = "RawData"
+  val COMMENTS_TABLE = "comments_dim"
+  val POST_INFO_TABLE = "postInfo_dim"
+  val PROFILE_INFO_TABLE = "profileInfo_dim"
 
 
   def apply(basePath: String): Configuration = {
