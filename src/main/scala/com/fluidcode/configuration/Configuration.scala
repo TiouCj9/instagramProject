@@ -59,7 +59,7 @@ case class Configuration(
     import spark.implicits._
     val location = s"$rootPath/$database/$bronzeTable"
     val tableProperties = TableProperties(database, bronzeTable, location)
-    val emptyConf: Seq[RawData] = Seq()
+    val emptyConf: Seq[Data] = Seq()
     createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
   }
 

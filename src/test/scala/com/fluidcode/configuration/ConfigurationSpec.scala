@@ -2,7 +2,7 @@ package com.fluidcode.configuration
 
 import java.nio.file.Paths
 import com.fluidcode.configuration.Configuration._
-import com.fluidcode.models.RawData
+import com.fluidcode.models.Data
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions.col
@@ -43,7 +43,7 @@ with DeltaExtendedSparkSession {
 
   val dbLocation = new Path(s"$basePath/$DATABASE")
   val fs = getFileSystem(dbLocation)
-  val emptyUserManagedConf: Seq[RawData] = Seq()
+  val emptyUserManagedConf: Seq[Data] = Seq()
   val table = "my_table"
   val location = s"$dbLocation/$table/"
   val tableProperties = TableProperties(DATABASE, table, location)
@@ -201,7 +201,7 @@ with DeltaExtendedSparkSession {
   val sparkSession = spark
   import sparkSession.implicits._
   // Given
-  val emptyDF: Seq[RawData] = Seq()
+  val emptyDF: Seq[Data] = Seq()
   val database = "my_db"
   val table = "my_table"
   val location = s"${dir.toString}/$database/$table/"
@@ -222,7 +222,7 @@ with DeltaExtendedSparkSession {
   val sparkSession = spark
   import sparkSession.implicits._
   // Given
-  val emptyDF: Seq[RawData] = Seq()
+  val emptyDF: Seq[Data] = Seq()
   val database = "my_db"
   val table = "my_table"
   val location = s"${dir.toString}/$database/$table/"
@@ -242,7 +242,7 @@ with DeltaExtendedSparkSession {
   val sparkSession = spark
   import sparkSession.implicits._
   // Given
-  val emptyDF: Seq[RawData] = Seq()
+  val emptyDF: Seq[Data] = Seq()
   val database = "my_db"
   val table = "my_table"
   val location = s"$basePath/$database/$table/"
@@ -261,7 +261,7 @@ with DeltaExtendedSparkSession {
   val sparkSession = spark
   import sparkSession.implicits._
   // Given
-  val emptyDF: Seq[RawData] = Seq()
+  val emptyDF: Seq[Data] = Seq()
   val database = "my_db"
   val table = "my_table"
   val location = s"$basePath/$database/$table/"

@@ -2,4 +2,4 @@ package com.fluidcode.models
 
 
 
-case class RawData(graphImages: Array[Int], GraphProfileInfo: Int)
+case class Data(graphImages: Array[Int], GraphProfileInfo: Int)
