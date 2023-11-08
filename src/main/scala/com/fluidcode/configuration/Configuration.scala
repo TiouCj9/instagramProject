@@ -18,21 +18,14 @@ case class Configuration(
                           database: String,
                           checkpointDir: Path,
                           trigger: Trigger,
-                          dateDimensionTable: String,
                           bronzeTable: String,
-                          commentsTable: String,
-                          postInfoTable: String,
-                          profileInfoTable: String
+
                         ) {
   def init(spark: SparkSession, overwrite: Boolean = false): Unit = {
     // TODO: check if init is done successfully
     initDatabase(spark, overwrite)
     initCheckpointDir(overwrite)
-    initDateDimensionTable(spark, overwrite)
     initBronzeTable(spark, overwrite)
-    initCommentsTable(spark, overwrite)
-    initPostInfoTable(spark, overwrite)
-    initProfileInfoTable(spark, overwrite)
   }
 
   def initDatabase(spark: SparkSession, overwrite: Boolean = false): Boolean = {
@@ -62,43 +55,11 @@ case class Configuration(
     }
   }
 
-  def initDateDimensionTable(spark: SparkSession, overwrite: Boolean = false): Boolean = {
-    import spark.implicits._
-    val location = s"$rootPath/$database/$dateDimensionTable"
-    val tableProperties = TableProperties(database, dateDimensionTable, location)
-    val emptyConf: Seq[DateDim] = Seq()
-    createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
-  }
-
   def initBronzeTable(spark: SparkSession, overwrite: Boolean = false): Boolean = {
     import spark.implicits._
     val location = s"$rootPath/$database/$bronzeTable"
     val tableProperties = TableProperties(database, bronzeTable, location)
     val emptyConf: Seq[RawData] = Seq()
-    createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
-  }
-
-  def initCommentsTable(spark: SparkSession, overwrite: Boolean = false): Boolean = {
-    import spark.implicits._
-    val location = s"$rootPath/$database/$commentsTable"
-    val tableProperties = TableProperties(database, commentsTable, location)
-    val emptyConf: Seq[Comments] = Seq()
-    createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
-  }
-
-  def initPostInfoTable(spark: SparkSession, overwrite: Boolean = false): Boolean = {
-    import spark.implicits._
-    val location = s"$rootPath/$database/$postInfoTable"
-    val tableProperties = TableProperties(database, postInfoTable, location)
-    val emptyConf: Seq[PostInfoResult] = Seq()
-    createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
-  }
-
-  def initProfileInfoTable(spark: SparkSession, overwrite: Boolean = false): Boolean = {
-    import spark.implicits._
-    val location = s"$rootPath/$database/$profileInfoTable"
-    val tableProperties = TableProperties(database, profileInfoTable, location)
-    val emptyConf: Seq[ProfileInfoResult] = Seq()
     createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
   }
 
@@ -111,11 +72,8 @@ object Configuration {
   // TODO: names TBD
   val DATABASE = "watcher_db"
   val CHECKPOINT_DIR = "checkpoint_dir"
-  val DATE_DIMENSION_TABLE = "dateDim"
   val BRONZE_TABLE = "RawData"
-  val COMMENTS_TABLE = "comments_dim"
-  val POST_INFO_TABLE = "postInfo_dim"
-  val PROFILE_INFO_TABLE = "profileInfo_dim"
+
 
 
   def apply(basePath: String): Configuration = {
@@ -131,11 +89,8 @@ object Configuration {
       DATABASE,
       checkpointDir,
       trigger,
-      DATE_DIMENSION_TABLE,
       BRONZE_TABLE,
-      COMMENTS_TABLE,
-      POST_INFO_TABLE,
-      PROFILE_INFO_TABLE
+
     )
   }
 
@@ -169,7 +124,7 @@ object Configuration {
       spark.sql(s"create database if not exists $database location '${dbLocation}'")
     }
     if (!spark.catalog.tableExists(s"$database.$table") || overwrite) {
-      persist(df, tableProperties, partitionColumns)
+      persist(df, tableProperties)
       true
     }
     else {
@@ -178,25 +133,14 @@ object Configuration {
   }
 
   def persist(df: DataFrame,
-              tableProperties: TableProperties,
-              partitionColumns: Option[Seq[String]]): Unit = {
-    if (partitionColumns == null) {
+              tableProperties: TableProperties): Unit = {
       df
         .write
         .format("delta")
         .mode("overwrite")
         .option("path", s"${tableProperties.location}")
         .saveAsTable(s"${tableProperties.database}.${tableProperties.table}")
-    }
-    else {
-      df
-        .write
-        .format("delta")
-        .mode("overwrite")
-        .option("path", s"${tableProperties.location}")
-        .partitionBy(partitionColumns.get: _*)
-        .saveAsTable(s"${tableProperties.database}.${tableProperties.table}")
-    }
+
   }
 
   // TODO: use logger inside function

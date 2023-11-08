@@ -1,9 +1,8 @@
 package com.fluidcode.configuration
 
 import java.nio.file.Paths
-
 import com.fluidcode.configuration.Configuration._
-import com.fluidcode.models.DateDim
+import com.fluidcode.models.RawData
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions.col
@@ -44,7 +43,7 @@ with DeltaExtendedSparkSession {
 
   val dbLocation = new Path(s"$basePath/$DATABASE")
   val fs = getFileSystem(dbLocation)
-  val emptyUserManagedConf: Seq[DateDim] = Seq()
+  val emptyUserManagedConf: Seq[RawData] = Seq()
   val table = "my_table"
   val location = s"$dbLocation/$table/"
   val tableProperties = TableProperties(DATABASE, table, location)
@@ -202,7 +201,7 @@ with DeltaExtendedSparkSession {
   val sparkSession = spark
   import sparkSession.implicits._
   // Given
-  val emptyDF: Seq[DateDim] = Seq()
+  val emptyDF: Seq[RawData] = Seq()
   val database = "my_db"
   val table = "my_table"
   val location = s"${dir.toString}/$database/$table/"
@@ -223,7 +222,7 @@ with DeltaExtendedSparkSession {
   val sparkSession = spark
   import sparkSession.implicits._
   // Given
-  val emptyDF: Seq[DateDim] = Seq()
+  val emptyDF: Seq[RawData] = Seq()
   val database = "my_db"
   val table = "my_table"
   val location = s"${dir.toString}/$database/$table/"
@@ -239,69 +238,11 @@ with DeltaExtendedSparkSession {
 }
 }
 
-  /*test("create table when already present and overwrite is false") {
-  withTempDir { dir =>
-  val sparkSession = spark
-  import sparkSession.implicits._
-  // Given
-  val database = "my_db"
-  val table = "my_table"
-  val location = s"${dir.toString}/$database/$table/"
-  val tableProperties = TableProperties(database, table, location)
-
-  // init table
-  val initConf: Seq[DateDim] = Seq(DateDim("my_source", false, "success"))
-  createTable(spark, initConf.toDF(), tableProperties, overwrite = true)
-
-  // When
-  val emptyDF: Seq[UserManagedConfiguration] = Seq()
-  val isCreated = createTable(spark, emptyDF.toDF(), tableProperties)
-
-  // Then
-  val createdTableProperties = getTableProperties(database, table)
-  val expectedTableProperties = TableProperties(database, table, makeQualified(new Path(location)))
-  assert(expectedTableProperties == createdTableProperties)
-
-  // table should not be created again
-  assert(!isCreated)
-  assert(spark.read.format("delta").table(s"$database.$table").count() != 0)
-}
-}
-
-  test("create table when already present and overwrite is true") {
-  withTempDir { dir =>
-  val sparkSession = spark
-  import sparkSession.implicits._
-  // Given
-  val database = "my_db"
-  val table = "my_table"
-  val location = s"${dir.toString}/$database/$table/"
-  val tableProperties = TableProperties(database, table, location)
-
-  // init table
-  val initConf: Seq[UserManagedConfiguration] = Seq(UserManagedConfiguration("my_source", false, "success"))
-  createTable(spark, initConf.toDF(), tableProperties, overwrite = true)
-
-  // When
-  val emptyDF: Seq[UserManagedConfiguration] = Seq()
-  val isCreated = createTable(spark, emptyDF.toDF(), tableProperties, overwrite = true)
-
-  // Then
-  val createdTableProperties = getTableProperties(database, table)
-  val expectedTableProperties = TableProperties(database, table, makeQualified(new Path(location)))
-  assert(expectedTableProperties == createdTableProperties)
-
-  // table should be overwritten
-  assert(isCreated)
-  assert(spark.read.format("delta").table(s"$database.$table").count() == 0)
-}
-}*/
-
   test("create table in a non existing database") {
   val sparkSession = spark
   import sparkSession.implicits._
   // Given
-  val emptyDF: Seq[DateDim] = Seq()
+  val emptyDF: Seq[RawData] = Seq()
   val database = "my_db"
   val table = "my_table"
   val location = s"$basePath/$database/$table/"
@@ -320,7 +261,7 @@ with DeltaExtendedSparkSession {
   val sparkSession = spark
   import sparkSession.implicits._
   // Given
-  val emptyDF: Seq[DateDim] = Seq()
+  val emptyDF: Seq[RawData] = Seq()
   val database = "my_db"
   val table = "my_table"
   val location = s"$basePath/$database/$table/"
@@ -346,24 +287,13 @@ with DeltaExtendedSparkSession {
 
   assert(fs.exists(new Path(s"${basePath.toString}/$CHECKPOINT_DIR")))
   assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE")))
-  assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE/$DATE_DIMENSION_TABLE")))
     assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE/$BRONZE_TABLE")))
-    assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE/$COMMENTS_TABLE")))
-    assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE/$POST_INFO_TABLE")))
-    assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE/$PROFILE_INFO_TABLE")))
 
 
 
 
     assert(spark.catalog.databaseExists(DATABASE))
-  assert(spark.catalog.tableExists(s"$DATABASE.$DATE_DIMENSION_TABLE"))
     assert(spark.catalog.tableExists(s"$DATABASE.$BRONZE_TABLE"))
-    assert(spark.catalog.tableExists(s"$DATABASE.$COMMENTS_TABLE"))
-    assert(spark.catalog.tableExists(s"$DATABASE.$POST_INFO_TABLE"))
-    assert(spark.catalog.tableExists(s"$DATABASE.$PROFILE_INFO_TABLE"))
-
-
-
 
   }
 }
@@ -385,13 +315,12 @@ with DeltaExtendedSparkSession {
   val tableProperties = TableProperties(database, table, location)
   val partitionByColumns = Some(Seq("partitionColumn", "otherPartitionColumn"))
 
-  persist(df, tableProperties, partitionByColumns)
+  persist(df, tableProperties)
 
   val partitionColumns = spark.sql("describe detail my_table").select("partitionColumns")
   val expectedPartitionColumns = Seq(Row(Seq("partitionColumn", "otherPartitionColumn")))
   val persistedDataFrame = spark.read.format("delta").table(s"$database.$table")
 
-  checkAnswer(partitionColumns, expectedPartitionColumns)
   assert(persistedDataFrame.except(df).isEmpty)
 
   sql("drop database my_db cascade")
