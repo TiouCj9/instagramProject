@@ -7,12 +7,13 @@ class BronzeLayer(conf: Configuration, spark: SparkSession, path: String) {
 
   def createBronzeTable(): Unit = {
 
-    val bronzeData = spark.read.option("multiLine", true).json(path)
+    val bronzeData = spark.readStream.option("multiLine", true).json(path)
 
     bronzeData
-      .write
+      .writeStream
       .format("delta")
-      .mode("append")
-      .save(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")
+      .outputMode("append")
+      .option("path", s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")
+      .start()
   }
 }
