@@ -1,10 +1,11 @@
 package com.fluidcode.processing.silver
 
+import com.fluidcode.configuration.Configuration
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.{col, explode}
 
-object GetPostsInfo {
-  def getPostsInfo(bronzeData: DataFrame): DataFrame = {
+class GetPostsInfo(bronzeData: DataFrame, conf: Configuration) {
+  def createPostsInfoTable(): Unit = {
     val explodedGraphImages = bronzeData.select(explode(col("GraphImages")).alias("GraphImages"))
     val postsInfoElements = explodedGraphImages.select(
       col("GraphImages.comments_disabled").alias("comments_disabled"),
@@ -35,6 +36,7 @@ object GetPostsInfo {
       col("username"),
       explode(col("edge_media_to_caption_edges.node.text")).alias("edge_media_to_caption_edges_text")
     )
-    postsInfo
+    postsInfo.write.format("delta").mode("overwrite")
+      .saveAsTable(s"${conf.rootPath}.${conf.database}.${conf.postInfoTable}")
   }
 }

@@ -1,7 +1,6 @@
-package com.fluidcode.processing.silver
+package com.fluidcode.processing.bronze
 
 import com.fluidcode.configuration.Configuration
-import com.fluidcode.processing.bronze.BronzeLayer
 import org.apache.spark.sql.QueryTest
 import org.apache.spark.sql.delta.test.DeltaExtendedSparkSession
 import org.apache.spark.sql.test.SharedSparkSession
@@ -14,7 +13,7 @@ class BronzeLayerSpec extends QueryTest
       val sparkSession = spark
       val conf = Configuration(dir.toString)
       conf.init(sparkSession)
-      
+
       val path = "phil.coutinho-1-test.json"
       val bronzeLayer = new BronzeLayer(conf, sparkSession, path)
       bronzeLayer.createBronzeTable()

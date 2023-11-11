@@ -288,12 +288,14 @@ with DeltaExtendedSparkSession {
   assert(fs.exists(new Path(s"${basePath.toString}/$CHECKPOINT_DIR")))
   assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE")))
     assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE/$BRONZE_TABLE")))
+    assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE/$SILVER_POST_INFO_TABLE")))
 
 
 
 
     assert(spark.catalog.databaseExists(DATABASE))
     assert(spark.catalog.tableExists(s"$DATABASE.$BRONZE_TABLE"))
+    assert(spark.catalog.tableExists(s"$DATABASE.$SILVER_POST_INFO_TABLE"))
 
   }
 }

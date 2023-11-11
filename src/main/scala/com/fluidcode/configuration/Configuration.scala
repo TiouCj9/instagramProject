@@ -19,6 +19,7 @@ case class Configuration(
                           checkpointDir: Path,
                           trigger: Trigger,
                           bronzeTable: String,
+                          postInfoTable: String
 
                         ) {
   def init(spark: SparkSession, overwrite: Boolean = false): Unit = {
@@ -26,6 +27,8 @@ case class Configuration(
     initDatabase(spark, overwrite)
     initCheckpointDir(overwrite)
     initBronzeTable(spark, overwrite)
+    initPostInfoTable(spark, overwrite)
+
   }
 
   def initDatabase(spark: SparkSession, overwrite: Boolean = false): Boolean = {
@@ -63,6 +66,14 @@ case class Configuration(
     createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
   }
 
+  def initPostInfoTable(spark: SparkSession, overwrite: Boolean = false): Boolean = {
+    import spark.implicits._
+    val location = s"$rootPath/$database/$postInfoTable"
+    val tableProperties = TableProperties(database, postInfoTable, location)
+    val emptyConf: Seq[Data] = Seq()
+    createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
+  }
+
   def initCheckpointDir(overwrite: Boolean): Boolean = {
     mkdir(checkpointDir, overwrite)
   }
@@ -73,6 +84,7 @@ object Configuration {
   val DATABASE = "watcher_db"
   val CHECKPOINT_DIR = "checkpoint_dir"
   val BRONZE_TABLE = "RawData"
+  val SILVER_POST_INFO_TABLE = "SilverTable"
 
 
 
@@ -90,6 +102,7 @@ object Configuration {
       checkpointDir,
       trigger,
       BRONZE_TABLE,
+      SILVER_POST_INFO_TABLE,
 
     )
   }
