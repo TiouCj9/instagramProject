@@ -37,6 +37,7 @@ class GetPostsInfo(bronzeData: DataFrame, conf: Configuration) {
       explode(col("edge_media_to_caption_edges.node.text")).alias("edge_media_to_caption_edges_text")
     )
     postsInfo.write.format("delta").mode("overwrite")
-      .saveAsTable(s"${conf.rootPath}.${conf.database}.${conf.postInfoTable}")
+      .option("path", s"${conf.rootPath}.${conf.database}.${conf.postInfoTable}")
+      .saveAsTable(s"${conf.postInfoTable}")
   }
 }

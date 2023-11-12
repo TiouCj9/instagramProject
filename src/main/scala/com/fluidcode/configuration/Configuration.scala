@@ -4,7 +4,8 @@ import com.fluidcode.configuration.Configuration._
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import java.io.FileNotFoundException
-import com.fluidcode.models._
+import com.fluidcode.models.bronze.Data
+import com.fluidcode.models.silver.Silver
 import org.apache.spark.sql.streaming.Trigger
 
 
@@ -20,7 +21,6 @@ case class Configuration(
                           trigger: Trigger,
                           bronzeTable: String,
                           postInfoTable: String
-
                         ) {
   def init(spark: SparkSession, overwrite: Boolean = false): Unit = {
     // TODO: check if init is done successfully
@@ -70,7 +70,7 @@ case class Configuration(
     import spark.implicits._
     val location = s"$rootPath/$database/$postInfoTable"
     val tableProperties = TableProperties(database, postInfoTable, location)
-    val emptyConf: Seq[Data] = Seq()
+    val emptyConf: Seq[Silver] = Seq()
     createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
   }
 
@@ -103,7 +103,6 @@ object Configuration {
       trigger,
       BRONZE_TABLE,
       SILVER_POST_INFO_TABLE,
-
     )
   }
 
