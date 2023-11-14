@@ -4,8 +4,8 @@ import com.fluidcode.configuration.Configuration
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.{col, explode}
 
-class GetPostsInfo(bronzeData: DataFrame, conf: Configuration) {
-  def createPostsInfoTable(): Unit = {
+object GetPostsInfoAndCreateTable {
+  def getPostsInfo(bronzeData: DataFrame): DataFrame = {
     val explodedGraphImages = bronzeData.select(explode(col("GraphImages")).alias("GraphImages"))
     val postsInfoElements = explodedGraphImages.select(
       col("GraphImages.comments_disabled").alias("comments_disabled"),
@@ -24,6 +24,7 @@ class GetPostsInfo(bronzeData: DataFrame, conf: Configuration) {
     )
     val postsInfo = postsInfoElements.select(col("comments_disabled"),
       col("edge_media_preview_like_count"),
+      explode(col("edge_media_to_caption_edges.node.text")).alias("edge_media_to_caption_edges_node_text"),
       col("edge_media_to_comment_count"),
       col("gating_info"),
       col("id"),
@@ -33,11 +34,14 @@ class GetPostsInfo(bronzeData: DataFrame, conf: Configuration) {
       col("shortcode"),
       col("tags"),
       col("taken_at_timestamp"),
-      col("username"),
-      explode(col("edge_media_to_caption_edges.node.text")).alias("edge_media_to_caption_edges_text")
+      col("username")
     )
+    postsInfo
+  }
+  def createPostsInfoTable(postsInfo: DataFrame, conf: Configuration): Unit = {
     postsInfo.write.format("delta").mode("overwrite")
-      .option("path", s"${conf.rootPath}.${conf.database}.${conf.postInfoTable}")
+      .option("path", s"${conf.rootPath}/${conf.database}/${conf.postInfoTable}")
       .saveAsTable(s"${conf.postInfoTable}")
   }
 }
+

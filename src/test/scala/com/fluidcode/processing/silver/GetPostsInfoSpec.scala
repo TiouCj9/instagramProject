@@ -4,29 +4,34 @@ import com.fluidcode.configuration.Configuration
 import org.apache.spark.sql.QueryTest
 import org.apache.spark.sql.delta.test.DeltaExtendedSparkSession
 import org.apache.spark.sql.test.SharedSparkSession
+import com.fluidcode.models.silver.PostsData
+import com.fluidcode.processing.bronze.BronzeLayer
+import com.fluidcode.processing.silver.GetPostsInfoAndCreateTable._
 
-case class SilverData(comments_disabled: Boolean, edge_media_preview_like_count: Long, edge_media_to_caption_edges_node_text: String,
-                         edge_media_to_comment_count: Long, gating_info: String, id: String, is_video: Boolean, location: String,
-                         owner_id: String, shortcode: String, tags: String, taken_at_timestamp: Long, username: String)
 
 class GetPostsInfoSpec extends QueryTest
   with SharedSparkSession
   with DeltaExtendedSparkSession  {
 
-  test("getPostsInfo should create  PostsInfoTable from Bronze Layer" ) {
+  test("getPostsInfo should select post info data from Bronze Layer" ) {
     withTempDir { dir =>
       val sparkSession = spark
       val conf = Configuration(dir.toString)
-      conf.init(sparkSession)
+      conf.init(sparkSession) //create new bronze table to resolve error Path does not exist:
+
       import sparkSession.implicits._
 
-      val silverInput = spark.read.option("multiLine", value = true).json("sample.json")
-      val createPostInfoTable = new GetPostsInfo(silverInput, conf)
-      createPostInfoTable.createPostsInfoTable()
+      val path = "c:/tmp/StreamSource/silver"
+      val bronzeLayer = new BronzeLayer(conf, sparkSession, path)
+      bronzeLayer.createBronzeTable()
       Thread.sleep(5000)
-      val result = spark.read.format("delta").load(s"${conf.rootPath}/${conf.database}/${conf.postInfoTable}")
+
+      val bronzeData = spark.read.format("delta")
+        .load(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")
+
+      val result = getPostsInfo(bronzeData)
       val expectedResult = Seq(
-        SilverData(comments_disabled = true, 100, "caption_text1", 50, null, "image_id1", is_video = false, null,
+        PostsData(comments_disabled = true, 100, "caption_text1", 50, null, "image_id1", is_video = false, null,
           "138289436", "shortcode1", "tag1", 1623779104, "benz")
       ).toDF()
       assert(result.except(expectedResult).isEmpty)

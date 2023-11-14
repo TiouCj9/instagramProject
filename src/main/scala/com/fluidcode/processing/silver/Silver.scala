@@ -1,7 +1,9 @@
 package com.fluidcode.processing.silver
 
 import com.fluidcode.configuration.Configuration
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.SparkSession
+import com.fluidcode.processing.silver.GetPostsInfoAndCreateTable._
+
 
 object Silver {
   def main(args: Array[String]): Unit = {
@@ -13,9 +15,10 @@ object Silver {
     conf.init(spark)
 
     val bronzeTablePath = s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}/"
-    val silverInput = spark.read.format("delta").load(bronzeTablePath)
-    val createPostInfoTable = new GetPostsInfo(silverInput, conf)
-    createPostInfoTable.createPostsInfoTable()
+    val bronzeData = spark.read.format("delta").load(bronzeTablePath)
+    val postsInfoData = getPostsInfo(bronzeData)
+    createPostsInfoTable(postsInfoData, conf)
+
 
   }
 }
