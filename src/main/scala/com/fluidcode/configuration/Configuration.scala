@@ -5,7 +5,7 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import java.io.FileNotFoundException
 import com.fluidcode.models.bronze.Data
-import com.fluidcode.models.silver.Silver
+import com.fluidcode.models.silver.PostsData
 import org.apache.spark.sql.streaming.Trigger
 
 
@@ -70,7 +70,7 @@ case class Configuration(
     import spark.implicits._
     val location = s"$rootPath/$database/$postInfoTable"
     val tableProperties = TableProperties(database, postInfoTable, location)
-    val emptyConf: Seq[Silver] = Seq()
+    val emptyConf: Seq[PostsData] = Seq()
     createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
   }
 
@@ -81,11 +81,10 @@ case class Configuration(
 
 object Configuration {
   // TODO: names TBD
-  val DATABASE = "watcher_db"
+  val DATABASE = "instagram_db"
   val CHECKPOINT_DIR = "checkpoint_dir"
-  val BRONZE_TABLE = "RawData"
-  val SILVER_POST_INFO_TABLE = "SilverTable"
-
+  val BRONZE_TABLE = "BronzeTable"
+  val SILVER_POST_INFO_TABLE = "PostsInfoTable"
 
 
   def apply(basePath: String): Configuration = {

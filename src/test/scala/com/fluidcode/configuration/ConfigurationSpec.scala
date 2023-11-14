@@ -16,7 +16,7 @@ with SharedSparkSession
 with DeltaExtendedSparkSession {
 
   // TODO: use temp dir instead for testing
-  val basePath: String = Paths.get(getClass.getResource("/").toURI).getParent + "/watcher"
+  val basePath: String = Paths.get(getClass.getResource("/").toURI).getParent + "/instagram"
 
   def getTableProperties(database: String, table: String): TableProperties = {
   spark
@@ -60,8 +60,8 @@ with DeltaExtendedSparkSession {
   assert(fs.listStatus(dbLocation).length != 0)
 
   // init database
-  val watcherConf = Configuration(basePath)
-  watcherConf.initDatabase(spark, true)
+  val instagramConf = Configuration(basePath)
+  instagramConf.initDatabase(spark, true)
 
   // an empty database is created
   assert(spark.catalog.databaseExists(DATABASE))
@@ -92,8 +92,8 @@ with DeltaExtendedSparkSession {
   assert(!fs.exists(dbLocation))
 
   // init database
-  val watcherConf = Configuration(basePath)
-  watcherConf.initDatabase(spark)
+  val instagramConf = Configuration(basePath)
+  instagramConf.initDatabase(spark)
 
   // an empty database is created
   assert(spark.catalog.databaseExists(DATABASE))
@@ -278,13 +278,13 @@ with DeltaExtendedSparkSession {
   assert(expectedTableProperties == createdTableProperties)
 }
 
-  test("init watcher conf") {
+  test("init instagram conf") {
   withTempDir { dir =>
   val basePath = new Path(dir.toString)
   val fs = getFileSystem(basePath)
 
-  val watcherConf = Configuration(dir.toString)
-  watcherConf.init(spark)
+  val instagramConf = Configuration(dir.toString)
+  instagramConf.init(spark)
 
   assert(fs.exists(new Path(s"${basePath.toString}/$CHECKPOINT_DIR")))
   assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE")))
