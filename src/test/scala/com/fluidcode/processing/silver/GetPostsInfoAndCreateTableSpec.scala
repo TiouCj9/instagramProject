@@ -22,7 +22,7 @@ class GetPostsInfoAndCreateTableSpec extends QueryTest
 
       import sparkSession.implicits._
 
-      val path = s"${conf.rootPath}/${conf.database}/${conf.sample}"
+      val path = s"${conf.rootPath}/${conf.database}/sample"
 
       val sampleDf = Seq(
         Data(Array(GraphImagesElements(
@@ -43,7 +43,7 @@ class GetPostsInfoAndCreateTableSpec extends QueryTest
       val bronzeLayer = new BronzeLayer(conf, sparkSession, path)
       bronzeLayer.createBronzeTable()
 
-      createPostsInfoTable(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}", conf, spark)
+      createPostsInfoTable(conf, spark)
       Thread.sleep(5000)
 
       val result = spark.read.format("delta").load(s"${conf.rootPath}/${conf.database}/${conf.postInfoTable}")
@@ -63,7 +63,7 @@ class GetPostsInfoAndCreateTableSpec extends QueryTest
 
       import sparkSession.implicits._
 
-      val path = s"${conf.rootPath}/${conf.database}/${conf.sample}"
+      val path = s"${conf.rootPath}/${conf.database}/sample"
 
       val sampleDf = Seq(
         Data(Array(GraphImagesElements("Graph1", CommentsData(Array(DataElements(1623779105, "1382894360", OwnerData("138289436000", "https://profile_pic_url1", "mehrez"), "comment_text1"))),

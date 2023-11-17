@@ -19,7 +19,7 @@ class BronzeLayerSpec extends QueryTest
 
       import sparkSession.implicits._
 
-      val path = s"${conf.rootPath}/${conf.database}/${conf.sample}"
+      val path = s"${conf.rootPath}/${conf.database}/sample"
 
       val sampleDf = Seq(
         Data(Array(GraphImagesElements("Graph1", CommentsData(Array(DataElements(1623779105, "1382894360", OwnerData("138289436000", "https://profile_pic_url1", "mehrez"), "comment_text1"))),

@@ -13,7 +13,6 @@ object Silver {
 
     val conf = Configuration(args(0))
 
-    val bronzeDataPath = args(1)
-    createPostsInfoTable(bronzeDataPath, conf, spark)
+    createPostsInfoTable(conf, spark)
   }
 }
