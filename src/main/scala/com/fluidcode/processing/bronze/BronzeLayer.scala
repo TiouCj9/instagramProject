@@ -1,6 +1,7 @@
 package com.fluidcode.processing.bronze
 
 import com.fluidcode.configuration.Configuration
+import com.fluidcode.configuration.Configuration.CHECKPOINT_DIR
 import com.fluidcode.models.bronze.Data
 import org.apache.spark.sql.{Encoders, SparkSession}
 
@@ -11,7 +12,7 @@ class BronzeLayer(conf: Configuration, spark: SparkSession, path: String) {
     val bronzeData = spark.readStream.schema(bronzeSchema).json(path)
 
     bronzeData.writeStream
-      .option("checkpointLocation", s"${conf.checkpointDir}")
+      .option("checkpointLocation", s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}/$CHECKPOINT_DIR")
       .format("delta")
       .outputMode("append")
       .start(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")

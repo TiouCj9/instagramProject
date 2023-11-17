@@ -1,6 +1,7 @@
 package com.fluidcode.processing.silver
 
 import com.fluidcode.configuration.Configuration
+import com.fluidcode.configuration.Configuration.CHECKPOINT_DIR
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions.{col, explode}
 
@@ -39,13 +40,13 @@ object GetPostsInfoAndCreateTable {
     )
     postsInfo
   }
-  def createPostsInfoTable(path: String, conf: Configuration, spark: SparkSession): Unit = {
+  def createPostsInfoTable(conf: Configuration, spark: SparkSession): Unit = {
 
-    val bronzeData = spark.readStream.format("delta").load(path)
+    val bronzeData = spark.readStream.format("delta").load(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")
     val postsInfo = getPostsInfo(bronzeData)
 
     postsInfo.writeStream
-      .option("checkpointLocation", s"${conf.checkpointDir}")
+      .option("checkpointLocation", s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}/$CHECKPOINT_DIR")
       .format("delta")
       .outputMode("append")
       .start(s"${conf.rootPath}/${conf.database}/${conf.postInfoTable}")
