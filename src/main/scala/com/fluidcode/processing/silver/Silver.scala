@@ -12,13 +12,8 @@ object Silver {
       .getOrCreate()
 
     val conf = Configuration(args(0))
-    conf.init(spark)
 
-    val bronzeTablePath = s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}/"
-    val bronzeData = spark.read.format("delta").load(bronzeTablePath)
-    val postsInfoData = getPostsInfo(bronzeData)
-    createPostsInfoTable(postsInfoData, conf)
-
-
+    val bronzeDataPath = args(1)
+    createPostsInfoTable(bronzeDataPath, conf, spark)
   }
 }

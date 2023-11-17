@@ -1,11 +1,12 @@
 package com.fluidcode.processing.silver
 
 import com.fluidcode.configuration.Configuration
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions.{col, explode}
 
 object GetPostsInfoAndCreateTable {
   def getPostsInfo(bronzeData: DataFrame): DataFrame = {
+
     val explodedGraphImages = bronzeData.select(explode(col("GraphImages")).alias("GraphImages"))
     val postsInfoElements = explodedGraphImages.select(
       col("GraphImages.comments_disabled").alias("comments_disabled"),
@@ -38,10 +39,16 @@ object GetPostsInfoAndCreateTable {
     )
     postsInfo
   }
-  def createPostsInfoTable(postsInfo: DataFrame, conf: Configuration): Unit = {
-    postsInfo.write.format("delta").mode("overwrite")
-      .option("path", s"${conf.rootPath}/${conf.database}/${conf.postInfoTable}")
-      .saveAsTable(s"${conf.postInfoTable}")
+  def createPostsInfoTable(path: String, conf: Configuration, spark: SparkSession): Unit = {
+
+    val bronzeData = spark.readStream.format("delta").load(path)
+    val postsInfo = getPostsInfo(bronzeData)
+
+    postsInfo.writeStream
+      .option("checkpointLocation", s"${conf.checkpointDir}")
+      .format("delta")
+      .outputMode("append")
+      .start(s"${conf.rootPath}/${conf.database}/${conf.postInfoTable}")
   }
 }
 
