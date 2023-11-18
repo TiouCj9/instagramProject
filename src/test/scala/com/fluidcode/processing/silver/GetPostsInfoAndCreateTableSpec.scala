@@ -39,7 +39,7 @@ class GetPostsInfoAndCreateTableSpec extends QueryTest
       assert(result.except(expectedResult).isEmpty)
   }
 
-  test("getPostsInfo should create post info table from Bronze Layer" ) {
+  test("createPostsInfoTable should create post info table from Bronze Layer" ) {
     withTempDir { dir =>
       val sparkSession = spark
       val conf = Configuration(dir.toString)
