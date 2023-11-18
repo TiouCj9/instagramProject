@@ -46,7 +46,7 @@ object GetPostsInfoAndCreateTable {
     val postsInfo = getPostsInfo(bronzeData)
 
     postsInfo.writeStream
-      .option("checkpointLocation", s"${conf.rootPath}/${conf.database}/$CHECKPOINT_DIR/${conf.postInfoTable}")
+      .option("checkpointLocation", s"${conf.checkpointDir}/${conf.postInfoTable}")
       .format("delta")
       .outputMode("append")
       .start(s"${conf.rootPath}/${conf.database}/${conf.postInfoTable}")
