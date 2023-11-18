@@ -12,7 +12,7 @@ class BronzeLayer(conf: Configuration, spark: SparkSession, path: String) {
     val bronzeData = spark.readStream.schema(bronzeSchema).json(path)
 
     bronzeData.writeStream
-      .option("checkpointLocation", s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}/$CHECKPOINT_DIR")
+      .option("checkpointLocation", s"${conf.rootPath}/${conf.database}/$CHECKPOINT_DIR/${conf.bronzeTable}")
       .format("delta")
       .outputMode("append")
       .start(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")
