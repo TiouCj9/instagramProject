@@ -1,8 +1,7 @@
 package com.fluidcode.processing.silver
 
 import com.fluidcode.configuration.Configuration
-import com.fluidcode.models.bronze.{Captions, Comments, CommentsData, Data, DataElements, DimensionsData, EdgesElements,
-                            GraphImagesElements, Info, Likes, NodeData, Owner, OwnerData, ProfileInfo, ThumbnailElements}
+import com.fluidcode.models.bronze._
 import com.fluidcode.models.silver.PostsData
 import com.fluidcode.processing.bronze.BronzeLayer
 import com.fluidcode.processing.silver.GetPostsInfoAndCreateTable._

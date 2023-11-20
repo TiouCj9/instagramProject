@@ -1,8 +1,7 @@
 package com.fluidcode.processing.bronze
 
 import com.fluidcode.configuration.Configuration
-import com.fluidcode.models.bronze.{Data, ProfileInfo, GraphImagesElements, CommentsData, DataElements, OwnerData, Likes,
-  DimensionsData, Captions, EdgesElements, NodeData, Comments, Owner, ThumbnailElements, Info}
+import com.fluidcode.models.bronze._
 import org.apache.spark.sql.{Encoders, QueryTest}
 import org.apache.spark.sql.delta.test.DeltaExtendedSparkSession
 import org.apache.spark.sql.test.SharedSparkSession
