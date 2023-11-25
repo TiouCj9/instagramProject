@@ -4,7 +4,9 @@ import com.fluidcode.configuration.Configuration._
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import java.io.FileNotFoundException
-import com.fluidcode.models._
+
+import com.fluidcode.models.bronze._
+import com.fluidcode.models.silver.SilverProfileInfo
 import org.apache.spark.sql.streaming.Trigger
 
 
@@ -19,6 +21,7 @@ case class Configuration(
                           checkpointDir: Path,
                           trigger: Trigger,
                           bronzeTable: String,
+                          profileInfoTable: String
 
                         ) {
   def init(spark: SparkSession, overwrite: Boolean = false): Unit = {
@@ -26,6 +29,7 @@ case class Configuration(
     initDatabase(spark, overwrite)
     initCheckpointDir(overwrite)
     initBronzeTable(spark, overwrite)
+    initProfileInfoTable(spark, overwrite)
   }
 
   def initDatabase(spark: SparkSession, overwrite: Boolean = false): Boolean = {
@@ -63,6 +67,14 @@ case class Configuration(
     createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
   }
 
+  def initProfileInfoTable(spark: SparkSession, overwrite: Boolean = false): Boolean = {
+    import spark.implicits._
+    val location = s"$rootPath/$database/$profileInfoTable"
+    val tableProperties = TableProperties(database, profileInfoTable, location)
+    val emptyConf: Seq[SilverProfileInfo] = Seq()
+    createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
+  }
+
   def initCheckpointDir(overwrite: Boolean): Boolean = {
     mkdir(checkpointDir, overwrite)
   }
@@ -70,9 +82,10 @@ case class Configuration(
 
 object Configuration {
   // TODO: names TBD
-  val DATABASE = "watcher_db"
+  val DATABASE = "instagram_db"
   val CHECKPOINT_DIR = "checkpoint_dir"
-  val BRONZE_TABLE = "RawData"
+  val BRONZE_TABLE = "bronzeTable"
+  val SILVER_PROFILE_INFO_TABLE = "profileInfoTable"
 
 
 
@@ -90,7 +103,7 @@ object Configuration {
       checkpointDir,
       trigger,
       BRONZE_TABLE,
-
+      SILVER_PROFILE_INFO_TABLE
     )
   }
 
