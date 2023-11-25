@@ -1,11 +1,10 @@
 package com.fluidcode.processing.silver
 
 import com.fluidcode.configuration.Configuration
-import com.fluidcode.configuration.Configuration.CHECKPOINT_DIR
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions.{col, explode}
 
-object GetPostsInfoAndCreateTable {
+object CreatePostsInfoTable {
   def getPostsInfo(bronzeData: DataFrame): DataFrame = {
 
     val explodedGraphImages = bronzeData.select(explode(col("GraphImages")).alias("GraphImages"))

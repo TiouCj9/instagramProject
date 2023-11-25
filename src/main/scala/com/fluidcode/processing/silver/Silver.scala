@@ -2,8 +2,7 @@ package com.fluidcode.processing.silver
 
 import com.fluidcode.configuration.Configuration
 import org.apache.spark.sql.SparkSession
-import com.fluidcode.processing.silver.GetPostsInfoAndCreateTable._
-
+import com.fluidcode.processing.silver.CreatePostsInfoTable.createPostsInfoTable
 
 object Silver {
   def main(args: Array[String]): Unit = {

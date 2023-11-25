@@ -2,14 +2,14 @@ package com.fluidcode.processing.silver
 
 import com.fluidcode.configuration.Configuration
 import com.fluidcode.models.bronze._
-import com.fluidcode.models.silver.PostsData
+import com.fluidcode.models.silver.SilverPostsInfo
 import com.fluidcode.processing.bronze.BronzeLayer
-import com.fluidcode.processing.silver.GetPostsInfoAndCreateTable._
+import com.fluidcode.processing.silver.CreatePostsInfoTable._
 import org.apache.spark.sql.QueryTest
 import org.apache.spark.sql.delta.test.DeltaExtendedSparkSession
 import org.apache.spark.sql.test.SharedSparkSession
 
-class GetPostsInfoAndCreateTableSpec extends QueryTest
+class CreatePostsInfoTableSpec extends QueryTest
   with SharedSparkSession
   with DeltaExtendedSparkSession {
 
@@ -31,7 +31,7 @@ class GetPostsInfoAndCreateTableSpec extends QueryTest
       val result = getPostsInfo(sampleDf)
 
       val expectedResult = Seq(
-        PostsData(comments_disabled = true, 100, "caption_text1", 50, null, "image_id1", is_video = false, null,
+        SilverPostsInfo(comments_disabled = true, 100, "caption_text1", 50, null, "image_id1", is_video = false, null,
           "138289436", "shortcode1", "tag1", 1623779104, "benz")
       ).toDF()
 
@@ -72,7 +72,7 @@ class GetPostsInfoAndCreateTableSpec extends QueryTest
 
       val result = spark.read.format("delta").load(s"${conf.rootPath}/${conf.database}/${conf.postInfoTable}")
       val expectedResult = Seq(
-        PostsData(comments_disabled = true, 100, "caption_text1", 50, null, "image_id1", is_video = false, null,
+        SilverPostsInfo(comments_disabled = true, 100, "caption_text1", 50, null, "image_id1", is_video = false, null,
           "138289436", "shortcode1", "tag1", 1623779104, "benz")
       ).toDF()
       assert(result.except(expectedResult).isEmpty)

@@ -1,11 +1,12 @@
 package com.fluidcode.configuration
 
-import com.fluidcode.configuration.Configuration._
+import com.fluidcode.configuration.Configuration.{createTable, _}
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import java.io.FileNotFoundException
+
 import com.fluidcode.models.bronze.Data
-import com.fluidcode.models.silver.PostsData
+import com.fluidcode.models.silver._
 import org.apache.spark.sql.streaming.Trigger
 
 
@@ -20,7 +21,7 @@ case class Configuration(
                           checkpointDir: Path,
                           trigger: Trigger,
                           bronzeTable: String,
-                          postInfoTable: String
+                          postInfoTable: String,
                         ) {
   def init(spark: SparkSession, overwrite: Boolean = false): Unit = {
     // TODO: check if init is done successfully
@@ -28,7 +29,6 @@ case class Configuration(
     initCheckpointDir(overwrite)
     initBronzeTable(spark, overwrite)
     initPostInfoTable(spark, overwrite)
-
   }
 
   def initDatabase(spark: SparkSession, overwrite: Boolean = false): Boolean = {
@@ -70,7 +70,7 @@ case class Configuration(
     import spark.implicits._
     val location = s"$rootPath/$database/$postInfoTable"
     val tableProperties = TableProperties(database, postInfoTable, location)
-    val emptyConf: Seq[PostsData] = Seq()
+    val emptyConf: Seq[SilverPostsInfo] = Seq()
     createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
   }
 
@@ -86,7 +86,6 @@ object Configuration {
   val BRONZE_TABLE = "BronzeTable"
   val SILVER_POST_INFO_TABLE = "PostsInfoTable"
 
-
   def apply(basePath: String): Configuration = {
     val path = new Path(basePath)
     val fs = getFileSystem(path)
@@ -101,7 +100,7 @@ object Configuration {
       checkpointDir,
       trigger,
       BRONZE_TABLE,
-      SILVER_POST_INFO_TABLE,
+      SILVER_POST_INFO_TABLE
     )
   }
 
