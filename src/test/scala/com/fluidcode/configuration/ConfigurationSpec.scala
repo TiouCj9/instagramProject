@@ -1,8 +1,9 @@
 package com.fluidcode.configuration
 
 import java.nio.file.Paths
+
 import com.fluidcode.configuration.Configuration._
-import com.fluidcode.models.Data
+import com.fluidcode.models.bronze.Data
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions.col
@@ -59,8 +60,8 @@ with DeltaExtendedSparkSession {
   assert(fs.listStatus(dbLocation).length != 0)
 
   // init database
-  val watcherConf = Configuration(basePath)
-  watcherConf.initDatabase(spark, true)
+  val instagramConf = Configuration(basePath)
+  instagramConf.initDatabase(spark, true)
 
   // an empty database is created
   assert(spark.catalog.databaseExists(DATABASE))
@@ -91,8 +92,8 @@ with DeltaExtendedSparkSession {
   assert(!fs.exists(dbLocation))
 
   // init database
-  val watcherConf = Configuration(basePath)
-  watcherConf.initDatabase(spark)
+  val instagramConf = Configuration(basePath)
+  instagramConf.initDatabase(spark)
 
   // an empty database is created
   assert(spark.catalog.databaseExists(DATABASE))
@@ -277,23 +278,26 @@ with DeltaExtendedSparkSession {
   assert(expectedTableProperties == createdTableProperties)
 }
 
-  test("init watcher conf") {
+  test("init instagram conf") {
   withTempDir { dir =>
   val basePath = new Path(dir.toString)
   val fs = getFileSystem(basePath)
 
-  val watcherConf = Configuration(dir.toString)
-  watcherConf.init(spark)
+  val instagramConf = Configuration(dir.toString)
+  instagramConf.init(spark)
 
   assert(fs.exists(new Path(s"${basePath.toString}/$CHECKPOINT_DIR")))
   assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE")))
     assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE/$BRONZE_TABLE")))
+    assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE/$SILVER_COMMENTS_TABLE")))
 
 
 
 
     assert(spark.catalog.databaseExists(DATABASE))
     assert(spark.catalog.tableExists(s"$DATABASE.$BRONZE_TABLE"))
+    assert(spark.catalog.tableExists(s"$DATABASE.$SILVER_COMMENTS_TABLE"))
+
 
   }
 }

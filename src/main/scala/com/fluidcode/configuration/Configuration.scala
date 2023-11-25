@@ -4,7 +4,8 @@ import com.fluidcode.configuration.Configuration._
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import java.io.FileNotFoundException
-import com.fluidcode.models._
+import com.fluidcode.models.silver.SilverComments
+import com.fluidcode.models.bronze.Data
 import org.apache.spark.sql.streaming.Trigger
 
 
@@ -19,6 +20,7 @@ case class Configuration(
                           checkpointDir: Path,
                           trigger: Trigger,
                           bronzeTable: String,
+                          commentsTable: String
 
                         ) {
   def init(spark: SparkSession, overwrite: Boolean = false): Unit = {
@@ -26,6 +28,7 @@ case class Configuration(
     initDatabase(spark, overwrite)
     initCheckpointDir(overwrite)
     initBronzeTable(spark, overwrite)
+    initCommentsTable (spark, overwrite)
   }
 
   def initDatabase(spark: SparkSession, overwrite: Boolean = false): Boolean = {
@@ -63,6 +66,14 @@ case class Configuration(
     createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
   }
 
+  def initCommentsTable(spark: SparkSession, overwrite: Boolean = false): Boolean = {
+    import spark.implicits._
+    val location = s"$rootPath/$database/$commentsTable"
+    val tableProperties = TableProperties(database, commentsTable, location)
+    val emptyConf: Seq[SilverComments] = Seq()
+    createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
+  }
+
   def initCheckpointDir(overwrite: Boolean): Boolean = {
     mkdir(checkpointDir, overwrite)
   }
@@ -70,10 +81,10 @@ case class Configuration(
 
 object Configuration {
   // TODO: names TBD
-  val DATABASE = "watcher_db"
+  val DATABASE = "instagram_db"
   val CHECKPOINT_DIR = "checkpoint_dir"
-  val BRONZE_TABLE = "RawData"
-
+  val BRONZE_TABLE = "bronzeTable"
+  val SILVER_COMMENTS_TABLE = "commentsTable"
 
 
   def apply(basePath: String): Configuration = {
@@ -90,7 +101,7 @@ object Configuration {
       checkpointDir,
       trigger,
       BRONZE_TABLE,
-
+      SILVER_COMMENTS_TABLE
     )
   }
 
