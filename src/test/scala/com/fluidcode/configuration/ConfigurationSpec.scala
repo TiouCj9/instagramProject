@@ -1,9 +1,8 @@
 package com.fluidcode.configuration
 
 import java.nio.file.Paths
-
 import com.fluidcode.configuration.Configuration._
-import com.fluidcode.models.bronze.Data
+import com.fluidcode.models.Data
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions.col
@@ -16,7 +15,7 @@ with SharedSparkSession
 with DeltaExtendedSparkSession {
 
   // TODO: use temp dir instead for testing
-  val basePath: String = Paths.get(getClass.getResource("/").toURI).getParent + "/instagram"
+  val basePath: String = Paths.get(getClass.getResource("/").toURI).getParent + "/watcher"
 
   def getTableProperties(database: String, table: String): TableProperties = {
   spark
@@ -60,8 +59,8 @@ with DeltaExtendedSparkSession {
   assert(fs.listStatus(dbLocation).length != 0)
 
   // init database
-  val instagramConf = Configuration(basePath)
-  instagramConf.initDatabase(spark, true)
+  val watcherConf = Configuration(basePath)
+  watcherConf.initDatabase(spark, true)
 
   // an empty database is created
   assert(spark.catalog.databaseExists(DATABASE))
@@ -92,8 +91,8 @@ with DeltaExtendedSparkSession {
   assert(!fs.exists(dbLocation))
 
   // init database
-  val instagramConf = Configuration(basePath)
-  instagramConf.initDatabase(spark)
+  val watcherConf = Configuration(basePath)
+  watcherConf.initDatabase(spark)
 
   // an empty database is created
   assert(spark.catalog.databaseExists(DATABASE))
@@ -278,22 +277,24 @@ with DeltaExtendedSparkSession {
   assert(expectedTableProperties == createdTableProperties)
 }
 
-  test("init instagram conf") {
+  test("init watcher conf") {
   withTempDir { dir =>
   val basePath = new Path(dir.toString)
   val fs = getFileSystem(basePath)
 
-  val instagramConf = Configuration(dir.toString)
-  instagramConf.init(spark)
+  val watcherConf = Configuration(dir.toString)
+  watcherConf.init(spark)
 
   assert(fs.exists(new Path(s"${basePath.toString}/$CHECKPOINT_DIR")))
   assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE")))
     assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE/$BRONZE_TABLE")))
-    assert(fs.exists(new Path(s"${basePath.toString}/$DATABASE/$SILVER_PROFILE_INFO_TABLE")))
+
+
+
 
     assert(spark.catalog.databaseExists(DATABASE))
     assert(spark.catalog.tableExists(s"$DATABASE.$BRONZE_TABLE"))
-    assert(spark.catalog.tableExists(s"$DATABASE.$SILVER_PROFILE_INFO_TABLE"))
+
   }
 }
 
