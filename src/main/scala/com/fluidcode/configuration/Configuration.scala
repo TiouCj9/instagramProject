@@ -4,7 +4,7 @@ import com.fluidcode.configuration.Configuration._
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import java.io.FileNotFoundException
-import com.fluidcode.models._
+import com.fluidcode.models.bronze.Data
 import org.apache.spark.sql.streaming.Trigger
 
 
@@ -70,9 +70,9 @@ case class Configuration(
 
 object Configuration {
   // TODO: names TBD
-  val DATABASE = "watcher_db"
+  val DATABASE = "instagram_db"
   val CHECKPOINT_DIR = "checkpoint_dir"
-  val BRONZE_TABLE = "RawData"
+  val BRONZE_TABLE = "bronzeTable"
 
 
 

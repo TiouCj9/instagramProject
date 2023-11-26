@@ -2,7 +2,7 @@ package com.fluidcode.configuration
 
 import java.nio.file.Paths
 import com.fluidcode.configuration.Configuration._
-import com.fluidcode.models.Data
+import com.fluidcode.models.bronze.Data
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions.col
