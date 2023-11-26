@@ -1,10 +1,12 @@
 package com.fluidcode.configuration
 
-import com.fluidcode.configuration.Configuration._
+import com.fluidcode.configuration.Configuration.{createTable, _}
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import java.io.FileNotFoundException
-import com.fluidcode.models._
+
+import com.fluidcode.models.bronze.Data
+import com.fluidcode.models.silver._
 import org.apache.spark.sql.streaming.Trigger
 
 
@@ -19,13 +21,14 @@ case class Configuration(
                           checkpointDir: Path,
                           trigger: Trigger,
                           bronzeTable: String,
-
+                          postInfoTable: String,
                         ) {
   def init(spark: SparkSession, overwrite: Boolean = false): Unit = {
     // TODO: check if init is done successfully
     initDatabase(spark, overwrite)
     initCheckpointDir(overwrite)
     initBronzeTable(spark, overwrite)
+    initPostInfoTable(spark, overwrite)
   }
 
   def initDatabase(spark: SparkSession, overwrite: Boolean = false): Boolean = {
@@ -63,6 +66,14 @@ case class Configuration(
     createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
   }
 
+  def initPostInfoTable(spark: SparkSession, overwrite: Boolean = false): Boolean = {
+    import spark.implicits._
+    val location = s"$rootPath/$database/$postInfoTable"
+    val tableProperties = TableProperties(database, postInfoTable, location)
+    val emptyConf: Seq[SilverPostsInfo] = Seq()
+    createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
+  }
+
   def initCheckpointDir(overwrite: Boolean): Boolean = {
     mkdir(checkpointDir, overwrite)
   }
@@ -70,11 +81,10 @@ case class Configuration(
 
 object Configuration {
   // TODO: names TBD
-  val DATABASE = "watcher_db"
+  val DATABASE = "instagram_db"
   val CHECKPOINT_DIR = "checkpoint_dir"
-  val BRONZE_TABLE = "RawData"
-
-
+  val BRONZE_TABLE = "BronzeTable"
+  val SILVER_POST_INFO_TABLE = "PostsInfoTable"
 
   def apply(basePath: String): Configuration = {
     val path = new Path(basePath)
@@ -90,7 +100,7 @@ object Configuration {
       checkpointDir,
       trigger,
       BRONZE_TABLE,
-
+      SILVER_POST_INFO_TABLE
     )
   }
 

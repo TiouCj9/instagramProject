@@ -1,18 +1,19 @@
 package com.fluidcode.processing.bronze
 
 import com.fluidcode.configuration.Configuration
+import com.fluidcode.models.bronze.Data
 import org.apache.spark.sql.{Encoders, SparkSession}
 
 class BronzeLayer(conf: Configuration, spark: SparkSession, path: String) {
-
   def createBronzeTable(): Unit = {
 
-    val bronzeData = spark.read.option("multiLine", true).json(path)
+    val bronzeSchema = Encoders.product[Data].schema
+    val bronzeData = spark.readStream.schema(bronzeSchema).json(path)
 
-    bronzeData
-      .write
+    bronzeData.writeStream
+      .option("checkpointLocation", s"${conf.checkpointDir}/${conf.bronzeTable}")
       .format("delta")
-      .mode("append")
-      .save(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")
+      .outputMode("append")
+      .start(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")
   }
 }
