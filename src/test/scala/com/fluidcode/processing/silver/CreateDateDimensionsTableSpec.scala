@@ -14,7 +14,7 @@ class CreateDateDimensionsTableSpec extends QueryTest
   with SharedSparkSession
   with DeltaExtendedSparkSession {
 
-  test("getDateDimensions should select data dimensions from Bronze Layer"){
+  test("getDateDimensions should select date dimensions from Bronze Layer"){
     val SparkSession = spark
     import SparkSession.implicits._
 
@@ -56,7 +56,7 @@ class CreateDateDimensionsTableSpec extends QueryTest
     assert(result.except(expectedResult).isEmpty)
   }
 
-  test("createDateDimensionsTable should create data dimensions table from Bronze Layer" ) {
+  test("createDateDimensionsTable should create date dimensions table from Bronze Layer" ) {
     withTempDir { dir =>
       val sparkSession = spark
       val conf = Configuration(dir.toString)

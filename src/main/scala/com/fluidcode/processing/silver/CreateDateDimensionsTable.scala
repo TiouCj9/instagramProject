@@ -27,9 +27,9 @@ object CreateDateDimensionsTable {
   }
   def createDateDimensionsTable(conf: Configuration, spark: SparkSession): Unit = {
     val bronzeData = spark.readStream.format("delta").load(s"${conf.rootPath}/${conf.database}/${conf.bronzeTable}")
-    val dataDimensions = getDateDimensions(bronzeData)
+    val dateDimensions = getDateDimensions(bronzeData)
 
-    dataDimensions.writeStream
+    dateDimensions.writeStream
       .option("checkpointLocation", s"${conf.checkpointDir}/${conf.dateDimensionsTable}")
       .format("delta")
       .outputMode("append")
