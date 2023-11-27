@@ -2,7 +2,7 @@ package com.fluidcode.processing.silver
 
 import com.fluidcode.configuration.Configuration
 import org.apache.spark.sql.SparkSession
-import com.fluidcode.processing.silver.CreateDataDimensionsTable.createDataDimensionsTable
+import com.fluidcode.processing.silver.CreateDateDimensionsTable.createDateDimensionsTable
 
 object Silver {
   def main(args: Array[String]): Unit = {
@@ -12,6 +12,6 @@ object Silver {
 
     val conf = Configuration(args(0))
 
-    createDataDimensionsTable(conf, spark)
+    createDateDimensionsTable(conf, spark)
   }
 }
