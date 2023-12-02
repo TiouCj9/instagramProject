@@ -1,62 +1,50 @@
 package com.fluidcode.processing.silver
 
-import com.fluidcode.models.bronze._
 import org.apache.spark.sql.QueryTest
 import org.apache.spark.sql.test.SharedSparkSession
 import org.apache.spark.sql.delta.test.DeltaExtendedSparkSession
 import com.fluidcode.processing.silver.CreateDateDimensionsTable._
 import com.fluidcode.models.silver.SilverDateDimensions
 import com.fluidcode.configuration.Configuration
-import com.fluidcode.processing.bronze.BronzeLayer
-
 
 class CreateDateDimensionsTableSpec extends QueryTest
   with SharedSparkSession
   with DeltaExtendedSparkSession {
 
-  test("getDateDimensions should select date dimensions from Bronze Layer"){
+  test("calculateEasterDate should return easter day date for any given year"){
     val SparkSession = spark
     import SparkSession.implicits._
 
-    spark.conf.set(
-      "spark.sql.optimizer.excludedRules",
-      "org.apache.spark.sql.catalyst.optimizer.PushDownLeftSemiAntiJoin"
-    )
+    val years= Seq(2023, 2024)
+    val result = years.map(year => (year, calculateEasterDate(year))).toDF("Year", "EasterDate")
 
-    val sampleDf = Seq(
-      Data(
-        Array(
-          GraphImagesElements(
-            "Graph1", CommentsData(
-              Array(DataElements(1623779105, "1382894360", OwnerData("138289436000", "https://profile_pic_url1", "mehrez"), "comment_text1"))
-            ),
-            comments_disabled = true, DimensionsData(1080, 1920), "https://instagram.url1", Likes(100), Captions(
-              Array(EdgesElements(
-                NodeData("caption_text1")
-              )
-              )
-            ),
-            Comments(50), null, "image_id1", is_video = false, null, "s564gsd", Owner("138289436"), "shortcode1", Array("tag1"),
-            1623779104, Array(ThumbnailElements(150, 150, "https://instagramthumbnail_src1")), "https://thumbnail_src1", Array("url1", "url2"),
-            "benz"
-          )
-        ),
-        ProfileInfo(
-          1623779107, Info(
-            "biography1", 1000, 500, "full_name1", "138289cc", is_business_account = true, is_joined_recently = false, is_private = false, 100,
-            "https://profile_pic_url1"
-          ), "benz")
-      )
-    ).toDF()
-
-    val result = getDateDimensions(sampleDf)
-
-    val expectedResult = Seq(SilverDateDimensions(1623779105, 1623779104, 1623779107)).toDF()
+    val expectedResult = Seq(
+      ("2023", "2023-04-09"),
+      ("2024", "2024-03-31")
+    ).toDF("Year","EasterDate")
 
     assert(result.except(expectedResult).isEmpty)
   }
 
-  test("createDateDimensionsTable should create date dimensions table from Bronze Layer" ) {
+  test("getDateDimensions should generate date dimensions for a specific period"){
+    val SparkSession = spark
+    import SparkSession.implicits._
+
+    val startDate = "2024-03-30"
+    val days = 3
+
+    val result = getDateDimensions(startDate, days, spark)
+
+    val expectedResult = Seq(
+      SilverDateDimensions("2024-03-30", "Saturday, 30 March 2024", 30, "Saturday", "March", 2024, 1, isWeekend = true, isHoliday = false),
+      SilverDateDimensions("2024-03-31", "Sunday, 31 March 2024", 31, "Sunday", "March", 2024, 1, isWeekend = true, isHoliday = true),
+      SilverDateDimensions("2024-04-01", "Monday, 01 April 2024", 1, "Monday", "April", 2024, 2, isWeekend = false, isHoliday = false)
+    ).toDF()
+
+    assert(result.except(expectedResult).isEmpty)
+  }
+
+  test("createDateDimensionsTab should create date dimensions table for a specific period, starting from a well-defined start date" ) {
     withTempDir { dir =>
       val sparkSession = spark
       val conf = Configuration(dir.toString)
@@ -64,34 +52,21 @@ class CreateDateDimensionsTableSpec extends QueryTest
 
       import sparkSession.implicits._
 
-      val path = "testSample"
+      val startDate = "2024-03-30"
+      val days = 3
 
-      val sampleDf = Seq(
-        Data(Array(GraphImagesElements(
-          "Graph1", CommentsData(Array(DataElements(
-            1623779105, "1382894360", OwnerData("138289436000", "https://profile_pic_url1", "mehrez"), "comment_text1")
-          )),
-          comments_disabled = true, DimensionsData(1080, 1920), "https://instagram.url1", Likes(100),
-          Captions(Array(EdgesElements(NodeData("caption_text1")))),
-          Comments(50), null, "image_id1", is_video = false, null, "s564gsd", Owner("138289436"), "shortcode1", Array("tag1"),
-          1623779104, Array(ThumbnailElements(150, 150, "https://instagramthumbnail_src1")), "https://thumbnail_src1",
-          Array("url1", "url2"), "benz")),
-          ProfileInfo(1623779107, Info("biography1", 1000, 500, "full_name1", "138289cc", is_business_account = true, is_joined_recently = false, is_private = false, 100,
-            "https://profile_pic_url1"), "benz"))
-      ).toDF()
-
-      sampleDf.write.mode("overwrite").json(path)
-
-      val bronzeLayer = new BronzeLayer(conf, sparkSession, path)
-      bronzeLayer.createBronzeTable()
-
-      createDateDimensionsTable(conf, spark)
+      createDateDimensionsTable(startDate, days, conf, spark)
       Thread.sleep(5000)
 
       val result = spark.read.format("delta").load(s"${conf.rootPath}/${conf.database}/${conf.dateDimensionsTable}")
-      val expectedResult = Seq(SilverDateDimensions(1623779105, 1623779104, 1623779107)).toDF()
+
+      val expectedResult = Seq(
+        SilverDateDimensions("2024-03-30", "Saturday, 30 March 2024", 30, "Saturday", "March", 2024, 1, isWeekend = true, isHoliday = false),
+        SilverDateDimensions("2024-03-31", "Sunday, 31 March 2024", 31, "Sunday", "March", 2024, 1, isWeekend = true, isHoliday = true),
+        SilverDateDimensions("2024-04-01", "Monday, 01 April 2024", 1, "Monday", "April", 2024, 2, isWeekend = false, isHoliday = false)
+      ).toDF()
+
       assert(result.except(expectedResult).isEmpty)
     }
   }
-
 }

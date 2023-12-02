@@ -11,7 +11,9 @@ object Silver {
       .getOrCreate()
 
     val conf = Configuration(args(0))
+    val startDate = args(1)
+    val periodInDays = args(2).toInt
 
-    createDateDimensionsTable(conf, spark)
+    createDateDimensionsTable(startDate, periodInDays, conf, spark)
   }
 }
