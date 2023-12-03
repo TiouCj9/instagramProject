@@ -4,7 +4,8 @@ import com.fluidcode.configuration.Configuration._
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import java.io.FileNotFoundException
-import com.fluidcode.models._
+import com.fluidcode.models.silver.SilverDateDimensions
+import com.fluidcode.models.bronze.Data
 import org.apache.spark.sql.streaming.Trigger
 
 
@@ -19,6 +20,7 @@ case class Configuration(
                           checkpointDir: Path,
                           trigger: Trigger,
                           bronzeTable: String,
+                          dateDimensionsTable: String
 
                         ) {
   def init(spark: SparkSession, overwrite: Boolean = false): Unit = {
@@ -26,6 +28,7 @@ case class Configuration(
     initDatabase(spark, overwrite)
     initCheckpointDir(overwrite)
     initBronzeTable(spark, overwrite)
+    initDateDimensionsTable(spark, overwrite)
   }
 
   def initDatabase(spark: SparkSession, overwrite: Boolean = false): Boolean = {
@@ -63,6 +66,14 @@ case class Configuration(
     createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
   }
 
+  def initDateDimensionsTable(spark: SparkSession, overwrite: Boolean = false): Boolean = {
+    import spark.implicits._
+    val location = s"$rootPath/$database/$dateDimensionsTable"
+    val tableProperties = TableProperties(database, dateDimensionsTable, location)
+    val emptyConf: Seq[SilverDateDimensions] = Seq()
+    createTable(spark, emptyConf.toDF(), tableProperties, partitionColumns = null, overwrite)
+  }
+
   def initCheckpointDir(overwrite: Boolean): Boolean = {
     mkdir(checkpointDir, overwrite)
   }
@@ -70,11 +81,10 @@ case class Configuration(
 
 object Configuration {
   // TODO: names TBD
-  val DATABASE = "watcher_db"
+  val DATABASE = "instagram_db"
   val CHECKPOINT_DIR = "checkpoint_dir"
-  val BRONZE_TABLE = "RawData"
-
-
+  val BRONZE_TABLE = "bronzeTable"
+  val SILVER_DATE_DIMENSIONS_TABLE = "dateDimensionsTable"
 
   def apply(basePath: String): Configuration = {
     val path = new Path(basePath)
@@ -90,7 +100,7 @@ object Configuration {
       checkpointDir,
       trigger,
       BRONZE_TABLE,
-
+      SILVER_DATE_DIMENSIONS_TABLE
     )
   }
 
